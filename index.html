@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الو ذغال | سفارش آنلاین</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-capable" content="yes">
+
+    <link rel="icon" href="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg">
+
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+        :root { --fire: #ff4d00; --gold: #e2b04a; --bg: #050505; --royal: #ffd700; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+
+        body {
+            background: var(--bg); color: #fff; min-height: 100vh; padding: 15px;
+            background-image: radial-gradient(circle at 50% 0%, #3a1100 0%, #050505 80%);
+            display: flex; flex-direction: column; align-items: center; padding-bottom: 50px;
+        }
+
+        /* --- استایل متن روان --- */
+        .ticker-container {
+            width: 100%; background: #000; border-bottom: 1px solid var(--gold);
+            overflow: hidden; white-space: nowrap; padding: 8px 0; z-index: 1000; margin-bottom: 10px;
+        }
+        .ticker-text {
+            display: inline-block; padding-right: 100%;
+            animation: marquee 15s linear infinite; color: var(--gold); font-size: 13px;
+        }
+        @keyframes marquee { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .blink { animation: blinker 0.8s linear infinite; color: #fff; font-weight: bold; background: var(--fire); padding: 2px 6px; border-radius: 5px; margin: 0 5px; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* --- استایل استوری‌ها --- */
+        .stories-container {
+            display: flex; gap: 15px; padding: 15px 5px; overflow-x: auto; 
+            width: 100%; max-width: 420px; scrollbar-width: none;
+        }
+        .stories-container::-webkit-scrollbar { display: none; }
+        .story-item { display: flex; flex-direction: column; align-items: center; min-width: 75px; cursor: pointer; }
+        .story-ring { 
+            width: 68px; height: 68px; border-radius: 50%; padding: 3px; 
+            border: 2px solid #333; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; 
+        }
+        .story-ring.active { 
+            background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); 
+            border: none; padding: 2px;
+        }
+        .story-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #000; }
+        .story-ring.add-btn { border: 2px dashed var(--gold); background: rgba(226, 176, 74, 0.1); }
+        .story-item span { font-size: 11px; color: #ccc; text-align: center; }
+        
+        /* --- استایل کادر تبلیغاتی هوشمند --- */
+        .vip-ad-card {
+            width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--gold); border-radius: 20px; padding: 15px; margin: 10px 0 20px 0;
+            display: flex; align-items: center; gap: 15px; position: relative; overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: blinkBorder 2s infinite;
+        }
+        @keyframes blinkBorder {
+            0% { border-color: var(--gold); box-shadow: 0 0 5px var(--gold); }
+            50% { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+            100% { border-color: var(--gold); box-shadow: 0 0 5px var(--gold); }
+        }
+        .fade-anim { animation: fadeInOut 0.8s ease-in-out; }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .vip-img { width: 75px; height: 75px; border-radius: 12px; object-fit: cover; border: 1px solid var(--gold); }
+        .vip-info { flex: 1; text-align: right; }
+        .vip-title { color: var(--gold); font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+        .vip-desc { color: #ccc; font-size: 12px; line-height: 1.5; }
+        .btn-call-vip { background: #25D366; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 8px; }
+
+        /* --- استایل مودال و نوار پیشرفت --- */
+        #story-modal {
+            display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+            background:rgba(0,0,0,0.95); z-index:10000; justify-content:center; 
+            align-items:center; flex-direction:column; backdrop-filter: blur(10px);
+        }
+        .story-progress-bg { width: 90%; height: 4px; background: #333; position: absolute; top: 20px; border-radius: 2px; overflow: hidden; }
+        #story-progress-fill { width: 0%; height: 100%; background: var(--gold); }
+
+        #pwa-install-banner {
+            display: none; position: fixed; bottom: 90px; left: 15px; right: 15px;
+            background: rgba(20, 20, 20, 0.95); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 12px; z-index: 2000; backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(226, 176, 74, 0.4); animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .banner-content { display: flex; align-items: center; gap: 12px; }
+        .banner-logo { width: 45px; height: 45px; border-radius: 10px; border: 1px solid var(--gold); }
+        .banner-text { flex: 1; font-size: 12px; color: #fff; text-align: right; }
+        .btn-install-now { background: var(--gold); color: #000; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .header-section { text-align: center; margin-bottom: 20px; }
+        .main-logo { width: 85px; height: 85px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; box-shadow: 0 0 15px rgba(226, 176, 74, 0.4); }
+        
+        .brand-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+        .brand-name { font-size: 26px; font-weight: 900; color: var(--gold); }
+        
+        .fire-anim { display: inline-block; animation: heatPulse 1.5s infinite alternate; filter: drop-shadow(0 0 2px #ff4d00); font-size: 24px; }
+        @keyframes heatPulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px #ff4d00) brightness(1); }
+            100% { transform: scale(1.15) rotate(-3deg); filter: drop-shadow(0 0 12px #ffae00) brightness(1.3); }
+        }
+
+        .sub-brand { 
+            font-size: 16px; font-weight: bold; color: var(--royal); margin-top: 5px; 
+            animation: blinkGold 1.2s infinite; text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+        
+        .challenge-link {
+            display: block; margin: 15px 0; padding: 10px; text-decoration: none; color: #fff; background: rgba(255, 215, 0, 0.1);
+            border: 1px dashed var(--gold); border-radius: 12px; font-weight: bold; font-size: 14px; animation: blinkChallenge 1.5s infinite; transition: 0.3s;
+        }
+        @keyframes blinkChallenge {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 5px var(--gold); }
+            50% { opacity: 0.7; transform: scale(0.98); box-shadow: 0 0 15px var(--fire); }
+        }
+
+        .media-container { width: 100%; max-width: 420px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(226, 176, 74, 0.4); margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background: #000; }
+        
+        .video-slider { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; }
+        .video-wrapper { display: flex; transition: transform 0.6s ease-in-out; height: 100%; }
+        .video-wrapper video { width: 100%; flex-shrink: 0; object-fit: cover; }
+        
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: #fff; width: 40px; height: 40px; cursor: pointer; border-radius: 50%; z-index: 10; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .prev-btn { left: 10px; } .next-btn { right: 10px; }
+        .mute-toggle { position: absolute; bottom: 10px; left: 10px; z-index: 10; background: var(--gold); border: none; width: 35px; height: 35px; border-radius: 50%; color: #000; cursor: pointer; }
+
+        .order-card { width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 25px; }
+        .form-group { margin-bottom: 15px; text-align: right; }
+        label { display: block; margin-bottom: 6px; color: #bbb; font-size: 13px; }
+        input, textarea, select { width: 100%; padding: 14px; background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 12px; color: #fff; text-align: right; font-size: 16px; outline: none; }
+
+        .qty-box { display: flex; align-items: center; justify-content: space-between; background: #000; border-radius: 12px; padding: 5px; border: 1px solid #333; direction: ltr; margin-bottom: 10px; }
+        .qty-btn { width: 45px; height: 45px; border-radius: 10px; border: none; background: #1a1a1a; color: var(--gold); font-size: 24px; cursor: pointer; }
+
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), #b8860b); color: #000; }
+        .btn-gps { background: transparent; color: #fff; border: 1px solid #555; font-size: 13px; }
+        .btn-wa { background: #25D366; color: #fff; display: none; text-decoration: none; text-align: center; }
+        .btn-action { display: flex; gap: 10px; }
+        .btn-edit { background: #444; color: #fff; }
+        .btn-reset { background: #8b0000; color: #fff; }
+
+        .invoice-card { display: none; background: #1a1a1a; border: 3px double var(--gold); border-radius: 20px; padding: 20px; margin-top: 15px; text-align: center; }
+        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted #444; padding-bottom: 4px; font-size: 14px; }
+        
+        .site-footer {
+            width: 100%; max-width: 420px; background: rgba(10, 10, 10, 0.95);
+            border: 1px solid rgba(226, 176, 74, 0.3); border-radius: 25px;
+            padding: 25px 15px; margin-top: 25px; text-align: center;
+        }
+        .footer-logo-small { width: 50px; height: 50px; border-radius: 50%; border: 1px solid var(--gold); margin-bottom: 10px; }
+        .footer-text { font-size: 13px; color: #bbb; line-height: 1.7; text-align: justify; }
+        .footer-info-list { list-style: none; font-size: 13px; color: #ddd; margin-top: 10px; }
+
+        .call-float { position: fixed; bottom: 20px; right: 20px; background: var(--gold); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 28px; z-index: 1000; }
+        
+        /* استایل لینک پنل مدیریت */
+        .admin-link {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 8px 15px;
+            background: rgba(226, 176, 74, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        .admin-link:hover {
+            background: rgba(226, 176, 74, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ticker-container">
+        <div class="ticker-text" id="ticker-box">🔥 الو ذغال | سفارش آنلاین ذغال مرغوب | تحویل سریع در ایذه 🔥</div>
+    </div>
+
+    <div id="pwa-install-banner">
+        <div class="banner-content">
+            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg" class="banner-logo">
+            <div class="banner-text"><b>نصب اپلیکیشن الو ذغال</b><br>برای دسترسی سریع و راحت</div>
+            <button class="btn-install-now" id="installBtn">نصب</button>
+        </div>
+    </div>
+
+    <div class="header-section">
+        <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg" class="main-logo">
+        <div class="brand-container"><span class="fire-anim">🔥</span><div class="brand-name">الو ذغال</div><span class="fire-anim">🔥</span></div>
+        <div class="sub-brand">سفارش سریع ذغال</div>
+        
+        <a href="admin-login.html" class="admin-link">🔧 ورود به پنل مدیریت تبلیغات</a>
+        
+        <div id="stories-wrapper" class="stories-container">
+            <div class="story-item" id="add-story-btn" onclick="openStoryUpload()">
+                <div class="story-ring add-btn">
+                    <span style="font-size: 24px; color: var(--gold);">+</span>
+                </div>
+                <span>ثبت تبلیغ</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="vip-ad-container">
+        <!-- تبلیغات به صورت خودکار از طریق AdManager لود می‌شوند -->
+    </div>
+
+    <div id="story-modal">
+        <div class="story-progress-bg"><div id="story-progress-fill"></div></div>
+        <span onclick="closeStory()" style="position:absolute; top:30px; right:30px; font-size:40px; color:white; cursor:pointer; font-weight:bold;">×</span>
+        <img id="story-full-img" src="" style="max-width:90%; max-height:75%; border-radius:15px; border:2px solid var(--gold); box-shadow: 0 0 20px rgba(226,176,74,0.5);">
+        <a id="story-link" href="#" class="btn btn-gold" style="width:auto; margin-top:25px; padding:12px 40px; text-decoration:none;">📱 ارتباط با کسب‌وکار</a>
+    </div>
+
+    <div class="media-container">
+        <div class="video-slider">
+            <button class="mute-toggle" onclick="toggleMute()"><span id="muteIcon">🔇</span></button>
+            <button class="nav-btn prev-btn" onclick="moveVideoSlide(-1)">❮</button>
+            <button class="nav-btn next-btn" onclick="moveVideoSlide(1)">❯</button>
+            <div class="video-wrapper" id="videoWrapper">
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/a8c2f66bea9ea321326456dd5d058f26_720w.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172500_130.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172447_155.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172436_806.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172430_170.mp4" type="video/mp4"></video>
+                <video muted playsinline loop><source src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/VID_20251227_172407_619.mp4" type="video/mp4"></video>
+            </div>
+        </div>
+    </div>
+
+    <div class="order-card">
+        <div id="form-area">
+            <div class="form-group"><label>👤 نام و نام خانوادگی:</label><input type="text" id="custName" placeholder="نام خود را وارد کنید..."></div>
+            <div class="form-group"><label>🕒 زمان تحویل:</label>
+                <select id="delivTime">
+                    <option value="فوری">فوری</option>
+                    <option value="۱ ساعت دیگه">۱ ساعت دیگه</option>
+                    <option value="۲ ساعت دیگه">۲ ساعت دیگه</option>
+                    <option value="۳ ساعت دیگه">۳ ساعت دیگه</option>
+                    <option value="۴ ساعت دیگه">۴ ساعت دیگه</option>
+                    <option value="۵ ساعت دیگه">۵ ساعت دیگه</option>
+                </select>
+            </div>
+            <div class="form-group"><label>🏠 آدرس محله/کوچه:</label><textarea id="custAddr" rows="2" placeholder="آدرس برای ارسال پیک"></textarea></div>
+            
+            <div class="form-group"><label>🔢 تعداد کیسه ذغال (۶۵,۰۰۰ ت):</label>
+                <div class="qty-box">
+                    <button class="qty-btn" onclick="updateQty('zoghal', 1)">+</button>
+                    <span id="qty-zoghal" style="font-size: 22px; font-weight: bold;">۱</span>
+                    <button class="qty-btn" onclick="updateQty('zoghal', -1)">-</button>
+                </div>
+            </div>
+
+            <div class="form-group"><label>🥗 تعداد بسته سبزی (۳۵,۰۰۰ ت):</label>
+                <div class="qty-box">
+                    <button class="qty-btn" onclick="updateQty('sabzi', 1)">+</button>
+                    <span id="qty-sabzi" style="font-size: 22px; font-weight: bold;">۰</span>
+                    <button class="qty-btn" onclick="updateQty('sabzi', -1)">-</button>
+                </div>
+            </div>
+
+            <button class="btn btn-gps" id="gpsBtn" onclick="getLocation()">📍 ثبت لوکیشن (GPS)</button>
+            <button class="btn btn-gold" onclick="generateInvoice()">✨ مشاهده فاکتور نهایی</button>
+
+            <a href="https://aloozoghal-hash.github.io/-Mir-mir-/" class="challenge-link">
+                💥چالش رو ببر  ۳ کیسه ذغال جایزه بگیر💥
+            </a>
+        </div>
+
+        <div id="invoice" class="invoice-card">
+            <h3 style="color:var(--gold); margin-bottom:10px;">📑 سفارش نهایی</h3>
+            <div class="invoice-row"><span>سفارش من:</span> <b id="inv-name"></b></div>
+            <div class="invoice-row" id="row-inv-zoghal"><span>ذغال:</span> <b id="inv-qty-zoghal"></b> کیسه</div>
+            <div class="invoice-row" id="row-inv-sabzi"><span>سبزی:</span> <b id="inv-qty-sabzi"></b> بسته</div>
+            <div class="invoice-row"><span>زمان:</span> <b id="inv-time"></b></div>
+            <div class="invoice-row"><span>مبلغ کل:</span> <span><b id="inv-price"></b> تومان</span></div>
+            
+            <div class="btn-action">
+                <button class="btn btn-edit" onclick="editOrder()">اصلاح</button>
+                <button class="btn btn-reset" onclick="resetForm()">سفارش مجدد</button>
+            </div>
+        </div>
+        <a id="waLink" href="#" class="btn btn-wa">📱 ارسال سفارش به الو ذغال  </a>
+    </div>
+
+    <footer class="site-footer">
+        <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg" class="footer-logo-small">
+        <div style="color:var(--gold); font-weight:bold; margin-bottom:10px;">درباره الو ذغال</div>
+        <p class="footer-text">
+            الو ذغال از دل ایذه برای سفره‌های باصفای شما. هدف ما ساده است: رساندن مرغوب‌ترین ذغال کباب به دست شما مشتری عزیز در کمترین زمان ممکن. تا لذت کباب خوردن برایتان دوچندان شود.
+        </p>
+        <ul class="footer-info-list">
+            <li>📍 آدرس: ایذه، پارک لاله</li>
+            <li style="direction: ltr; margin-top:5px;">۰۹۲۲ ۰۷۳ ۰۶۲۸ 📞</li>
+            <li style="margin-top:5px; font-size:11px; color:#666;">🕒 پاسخگویی: ۷ صبح تا ۹ شب</li>
+        </ul>
+        <p style="text-align:center; margin-top:15px;">
+            <a href="admin-login.html" class="admin-link">🔧 پنل مدیریت تبلیغات</a>
+        </p>
+    </footer>
+
+    <a href="tel:09220730628" class="call-float">📞</a>
+
+    <!-- اسکریپت مدیریت تبلیغات -->
+    <script src="ads-manager.js"></script>
+    
+    <script>
+        /* --- [اصلاح شده] لودر هوشمند اطلاعات --- */
+        let storyTimer;
+        let adManager; // مدیر تبلیغات
+
+        async function loadAllContent() {
+            try {
+                // ۱. تنظیم متن روان (Ticker)
+                updateTicker();
+                
+                // ۲. بارگذاری استوری‌ها
+                await loadStories();
+                
+                // ۳. مدیر تبلیغات به صورت خودکار از طریق ads-manager.js لود می‌شود
+                
+            } catch (e) { 
+                console.log("خطا در بارگذاری محتوا:", e);
+            }
+        }
+
+        function updateTicker() {
+            // می‌توانید از localStorage یا API برای دریافت متن تیکر استفاده کنید
+            const tickerMessages = [
+                "🔥 پیشنهاد ویژه: با خرید 3 کیسه ذغال، یک بسته سبزی رایگان دریافت کنید!",
+                "🚚 تحویل رایگان برای سفارش‌های بالای 200,000 تومان",
+                "⭐ ذغال مرغوب کبابی با کیفیت عالی | ضمانت برگشت",
+                "🎉 جشنواره نوروزی الو ذغال | تخفیف‌های ویژه"
+            ];
+            
+            const randomMsg = tickerMessages[Math.floor(Math.random() * tickerMessages.length)];
+            document.getElementById('ticker-box').innerHTML = randomMsg;
+        }
+
+        async function loadStories() {
+            try {
+                const response = await fetch('stories.json?v=' + Math.random());
+                const data = await response.json();
+                
+                const wrapper = document.getElementById('stories-wrapper');
+                const addBtn = document.getElementById('add-story-btn');
+                
+                // پاک کردن استوری‌های قبلی (به جز دکمه اضافه)
+                const existingStories = wrapper.querySelectorAll('.story-item:not(#add-story-btn)');
+                existingStories.forEach(story => story.remove());
+                
+                // اضافه کردن استوری‌های جدید
+                data.stories.forEach(story => {
+                    const div = document.createElement('div');
+                    div.className = 'story-item';
+                    div.onclick = () => showStory(story.image, story.link);
+                    div.innerHTML = `
+                        <div class="story-ring active">
+                            <img src="${story.thumb}" alt="${story.name}" loading="lazy">
+                        </div>
+                        <span>${story.name}</span>
+                    `;
+                    wrapper.insertBefore(div, addBtn);
+                });
+                
+                // ذخیره در localStorage برای کش
+                localStorage.setItem('cached_stories', JSON.stringify({
+                    data: data.stories,
+                    timestamp: Date.now()
+                }));
+                
+            } catch (e) {
+                console.log("خطا در بارگذاری استوری‌ها:", e);
+                loadCachedStories();
+            }
+        }
+
+        function loadCachedStories() {
+            const cached = localStorage.getItem('cached_stories');
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                // اگر کمتر از 24 ساعت گذشته باشد
+                if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+                    const wrapper = document.getElementById('stories-wrapper');
+                    const addBtn = document.getElementById('add-story-btn');
+                    
+                    data.forEach(story => {
+                        const div = document.createElement('div');
+                        div.className = 'story-item';
+                        div.onclick = () => showStory(story.image, story.link);
+                        div.innerHTML = `
+                            <div class="story-ring active">
+                                <img src="${story.thumb}" alt="${story.name}">
+                            </div>
+                            <span>${story.name}</span>
+                        `;
+                        wrapper.insertBefore(div, addBtn);
+                    });
+                }
+            }
+        }
+
+        /* --- توابع استوری با نوار پیشرفت --- */
+        function showStory(img, link) {
+            const modal = document.getElementById('story-modal');
+            const fill = document.getElementById('story-progress-fill');
+            document.getElementById('story-full-img').src = img;
+            document.getElementById('story-link').href = link;
+            modal.style.display = 'flex';
+            
+            let width = 0;
+            fill.style.width = '0%';
+            clearInterval(storyTimer);
+            
+            storyTimer = setInterval(() => {
+                width += 1;
+                fill.style.width = width + '%';
+                if (width >= 100) {
+                    closeStory();
+                }
+            }, 100);
+        }
+
+        function closeStory() {
+            clearInterval(storyTimer);
+            document.getElementById('story-modal').style.display = 'none';
+        }
+
+        function openStoryUpload() {
+            // باز کردن پنل آپلود استوری
+            window.open('admin-login.html?tab=stories', '_blank');
+        }
+
+        /* --- سایر توابع اصلی --- */
+        const videoWrapper = document.getElementById('videoWrapper');
+        const vids = document.querySelectorAll('#videoWrapper video');
+        let currentVidIdx = 0;
+        let isMuted = true;
+
+        function moveVideoSlide(direction) {
+            vids[currentVidIdx].pause();
+            currentVidIdx = (currentVidIdx + direction + vids.length) % vids.length;
+            videoWrapper.style.transform = `translateX(-${currentVidIdx * 100}%)`;
+            playCurrentVideo();
+        }
+
+        function playCurrentVideo() {
+            const activeVid = vids[currentVidIdx];
+            if(activeVid) {
+                activeVid.muted = isMuted;
+                activeVid.play().catch(e => {});
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            vids[currentVidIdx].muted = isMuted;
+            document.getElementById('muteIcon').innerText = isMuted ? "🔇" : "🔊";
+        }
+
+        let zCount = 1; let sCount = 0; let locL = "";
+        
+        function updateQty(type, v) {
+            if(type === 'zoghal') {
+                if(zCount + v >= 1) { zCount += v; document.getElementById('qty-zoghal').innerText = zCount; }
+            } else {
+                if(sCount + v >= 0) { sCount += v; document.getElementById('qty-sabzi').innerText = sCount; }
+            }
+        }
+
+        function getLocation() {
+            if(navigator.geolocation) {
+                document.getElementById('gpsBtn').innerText="در حال ثبت...";
+                navigator.geolocation.getCurrentPosition(p => {
+                    locL = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
+                    document.getElementById('gpsBtn').innerText="✅ لوکیشن ثبت شد";
+                }, () => {
+                    document.getElementById('gpsBtn').innerText="❌ خطا در ثبت";
+                });
+            }
+        }
+
+        function generateInvoice() {
+            const name = document.getElementById('custName').value; 
+            const addr = document.getElementById('custAddr').value;
+            const time = document.getElementById('delivTime').value;
+            
+            if(!name || name.length < 2) {
+                alert("لطفاً نام کامل خود را وارد کنید (حداقل ۲ حرف)");
+                document.getElementById('custName').focus();
+                return;
+            }
+            
+            if(!addr || addr.length < 10) {
+                alert("لطفاً آدرس کامل با حداقل ۱۰ کاراکتر وارد کنید");
+                document.getElementById('custAddr').focus();
+                return;
+            }
+            
+            const total = (zCount * 65000) + (sCount * 35000);
+            document.getElementById('inv-name').innerText = name;
+            document.getElementById('inv-qty-zoghal').innerText = zCount;
+            document.getElementById('inv-qty-sabzi').innerText = sCount;
+            document.getElementById('inv-time').innerText = time;
+            document.getElementById('inv-price').innerText = total.toLocaleString();
+            document.getElementById('row-inv-sabzi').style.display = sCount > 0 ? 'flex' : 'none';
+            document.getElementById('form-area').style.display='none';
+            document.getElementById('invoice').style.display='block';
+            document.getElementById('waLink').style.display='block';
+            
+            let orderText = `📦 ذغال: ${zCount} کیسه\n`;
+            if(sCount > 0) orderText += `🥗 سبزی: ${sCount} بسته\n`;
+            const msg = `سلام الو ذغال🖐️\n👤 نام: ${name}\n${orderText}🕒 تحویل: ${time}\n🏠 آدرس: ${addr}\n💰 مبلغ: ${total.toLocaleString()} تومان\n📍 لوکیشن: ${locL || "ثبت نشده"}`;
+            document.getElementById('waLink').href = `https://wa.me/989220730628?text=${encodeURIComponent(msg)}`;
+        }
+
+        function editOrder() {
+            document.getElementById('form-area').style.display='block';
+            document.getElementById('invoice').style.display='none';
+            document.getElementById('waLink').style.display='none';
+        }
+
+        function resetForm() { 
+            zCount = 1;
+            sCount = 0;
+            locL = "";
+            document.getElementById('qty-zoghal').innerText = '1';
+            document.getElementById('qty-sabzi').innerText = '0';
+            document.getElementById('custName').value = '';
+            document.getElementById('custAddr').value = '';
+            document.getElementById('gpsBtn').innerText = '📍 ثبت لوکیشن (GPS)';
+            editOrder();
+        }
+
+        window.onload = () => {
+            playCurrentVideo();
+            loadAllContent();
+        };
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-banner').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt = null;
+                document.getElementById('pwa-install-banner').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+  </html>
