@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود به پنل مدیریت | الو ذغال</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+        body { 
+            background: #050505; 
+            color: #fff; 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at 50% 0%, #3a1100 0%, #050505 80%);
+        }
+        
+        .login-container {
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid #e2b04a;
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #e2b04a;
+            margin: 0 auto 20px;
+            overflow: hidden;
+        }
+        
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        h1 {
+            color: #e2b04a;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .subtitle {
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e2b04a;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        input:focus {
+            border-color: #e2b04a;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e2b04a, #b8860b);
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ffc966, #d4a017);
+        }
+        
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+        
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        
+        .error {
+            background: rgba(255,0,0,0.1);
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+        }
+        
+        .success {
+            background: rgba(0,255,0,0.1);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+        
+        .info {
+            color: #999;
+            font-size: 12px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .info a {
+            color: #e2b04a;
+            text-decoration: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #999;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            color: #e2b04a;
+        }
+        
+        /* استایل برای تبلت و موبایل */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg" alt="الو ذغال">
+        </div>
+        
+        <h1>🔐 پنل مدیریت الو ذغال</h1>
+        <p class="subtitle">لطفاً برای ورود به پنل مدیریت، رمز عبور را وارد کنید</p>
+        
+        <div class="form-group">
+            <label>رمز عبور مدیریت:</label>
+            <input type="password" id="admin-password" placeholder="••••••••" maxlength="20" autocomplete="off">
+        </div>
+        
+        <button onclick="login()" class="btn btn-primary">ورود به پنل</button>
+        <a href="index.html" class="btn btn-secondary">بازگشت به سایت</a>
+        
+        <div id="login-message" class="message error">رمز اشتباه است!</div>
+        
+        <p class="info">
+            در صورت فراموشی رمز، با مدیر سیستم تماس بگیرید:<br>
+            <a href="tel:09220730628">۰۹۲۲ ۰۷۳ ۰۶۲۸</a>
+        </p>
+    </div>
+
+    <script>
+        // رمز عبور پنل (می‌توانید تغییر دهید)
+        const ADMIN_PASSWORD = "alo1380";
+        
+        function login() {
+            const enteredPass = document.getElementById('admin-password').value.trim();
+            const messageEl = document.getElementById('login-message');
+            
+            if(enteredPass === ADMIN_PASSWORD) {
+                // ذخیره وضعیت لاگین
+                sessionStorage.setItem('admin_logged_in', 'true');
+                sessionStorage.setItem('admin_login_time', Date.now());
+                
+                // هدایت به پنل اصلی
+                const urlParams = new URLSearchParams(window.location.search);
+                const tab = urlParams.get('tab') || 'create';
+                window.location.href = `admin-panel.html?tab=${tab}`;
+            } else {
+                messageEl.textContent = "رمز اشتباه است!";
+                messageEl.className = "message error";
+                messageEl.style.display = 'block';
+                
+                // ویبره در موبایل
+                if(navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+        }
+        
+        // ورود با کلید Enter
+        document.getElementById('admin-password').addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') {
+                login();
+            }
+        });
+        
+        // فوکوس روی فیلد رمز
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('admin-password').focus();
+        });
+        
+        // اگر قبلاً لاگین کرده، مستقیم به پنل ببر
+        window.addEventListener('load', function() {
+            const loggedIn = sessionStorage.getItem('admin_logged_in');
+            const loginTime = parseInt(sessionStorage.getItem('admin_login_time'));
+            
+            // اگر کمتر از ۲ ساعت از لاگین گذشته باشد
+            if(loggedIn === 'true' && (Date.now() - loginTime < 2 * 60 * 60 * 1000)) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tab = urlParams.get('tab') || 'create';
+                window.location.href = `admin-panel.html?tab=${tab}`;
+            }
+        });
+    </script>
+</body>
+  </html>
