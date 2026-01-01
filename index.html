@@ -144,6 +144,8 @@
         .btn-gold { background: linear-gradient(135deg, var(--gold), #b8860b); color: #000; }
         .btn-gps { background: transparent; color: #fff; border: 1px solid #555; font-size: 13px; }
         .btn-wa { background: #25D366; color: #fff; display: none; text-decoration: none; text-align: center; }
+        .btn-sms { background: #FF9800; color: #fff; display: none; text-decoration: none; text-align: center; }
+        .btn-tg { background: #0088cc; color: #fff; display: none; text-decoration: none; text-align: center; }
         .btn-action { display: flex; gap: 10px; }
         .btn-edit { background: #444; color: #fff; }
         .btn-reset { background: #8b0000; color: #fff; }
@@ -179,12 +181,37 @@
         .secret-admin-link:hover {
             opacity: 0.3;
         }
+        
+        /* دکمه ساخت تبلیغ */
+        .make-ad-btn {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 8px 15px;
+            background: #25D366;
+            border: 1px solid #25D366;
+            border-radius: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        .make-ad-btn:hover {
+            background: #1da851;
+        }
+        
+        /* استایل برای دکمه‌های ارسال */
+        .send-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- دکمه مخفی ورود به پنل (فقط با هاور نشان داده می‌شود) -->
-    <button class="secret-admin-link" onclick="window.open('admin-login.html', '_blank')" title="ورود به پنل مدیریت">⚙️</button>
+    <!-- دکمه مخفی ورود به پنل -->
+    <button class="secret-admin-link" onclick="window.open('admin-panel-simple.html', '_blank')" title="ورود به پنل مدیریت">⚙️</button>
 
     <div class="ticker-container">
         <div class="ticker-text" id="ticker-box">🔥 الو ذغال | سفارش آنلاین ذغال مرغوب | تحویل سریع در ایذه 🔥</div>
@@ -202,6 +229,9 @@
         <img src="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg" class="main-logo">
         <div class="brand-container"><span class="fire-anim">🔥</span><div class="brand-name">الو ذغال</div><span class="fire-anim">🔥</span></div>
         <div class="sub-brand">سفارش سریع ذغال</div>
+        
+        <!-- دکمه ساخت تبلیغ -->
+        <a href="admin-panel-simple.html" class="make-ad-btn">⚡ ساخت تبلیغ جدید</a>
         
         <div id="stories-wrapper" class="stories-container">
             <div class="story-item" id="add-story-btn" onclick="openStoryUpload()">
@@ -242,7 +272,17 @@
 
     <div class="order-card">
         <div id="form-area">
-            <div class="form-group"><label>👤 نام و نام خانوادگی:</label><input type="text" id="custName" placeholder="نام خود را وارد کنید..." oninput="checkSecretCode()"></div>
+            <div class="form-group">
+                <label>👤 نام و نام خانوادگی:</label>
+                <input type="text" id="custName" placeholder="نام کامل خود را وارد کنید..." oninput="checkSecretCode()">
+            </div>
+            
+            <div class="form-group">
+                <label>📱 شماره تماس (برای تماس مدیر):</label>
+                <input type="tel" id="custPhone" placeholder="09XXXXXXXXX" dir="ltr">
+                <small style="color:#888; font-size:11px; display:block; margin-top:5px;">شماره شما محرمانه است و فقط مدیر برای تأیید سفارش تماس می‌گیرد</small>
+            </div>
+            
             <div class="form-group"><label>🕒 زمان تحویل:</label>
                 <select id="delivTime">
                     <option value="فوری">فوری</option>
@@ -253,7 +293,7 @@
                     <option value="۵ ساعت دیگه">۵ ساعت دیگه</option>
                 </select>
             </div>
-            <div class="form-group"><label>🏠 آدرس محله/کوچه:</label><textarea id="custAddr" rows="2" placeholder="آدرس برای ارسال پیک"></textarea></div>
+            <div class="form-group"><label>🏠 آدرس محله/کوچه:</label><textarea id="custAddr" rows="2" placeholder="آدرس کامل برای ارسال پیک"></textarea></div>
             
             <div class="form-group"><label>🔢 تعداد کیسه ذغال (۶۵,۰۰۰ ت):</label>
                 <div class="qty-box">
@@ -282,17 +322,25 @@
         <div id="invoice" class="invoice-card">
             <h3 style="color:var(--gold); margin-bottom:10px;">📑 سفارش نهایی</h3>
             <div class="invoice-row"><span>سفارش من:</span> <b id="inv-name"></b></div>
+            <div class="invoice-row"><span>شماره تماس:</span> <b id="inv-phone"></b></div>
             <div class="invoice-row" id="row-inv-zoghal"><span>ذغال:</span> <b id="inv-qty-zoghal"></b> کیسه</div>
             <div class="invoice-row" id="row-inv-sabzi"><span>سبزی:</span> <b id="inv-qty-sabzi"></b> بسته</div>
-            <div class="invoice-row"><span>زمان:</span> <b id="inv-time"></b></div>
+            <div class="invoice-row"><span>زمان تحویل:</span> <b id="inv-time"></b></div>
             <div class="invoice-row"><span>مبلغ کل:</span> <span><b id="inv-price"></b> تومان</span></div>
+            <div class="invoice-row"><span>آدرس:</span> <b id="inv-addr"></b></div>
+            <div class="invoice-row"><span>لوکیشن:</span> <b id="inv-location"></b></div>
             
-            <div class="btn-action">
-                <button class="btn btn-edit" onclick="editOrder()">اصلاح</button>
-                <button class="btn btn-reset" onclick="resetForm()">سفارش مجدد</button>
+            <div class="send-buttons">
+                <a id="waLink" href="#" class="btn btn-wa">📱 ارسال سفارش به واتساپ</a>
+                <a id="smsLink" href="#" class="btn btn-sms">📨 ارسال پیامک به مدیر</a>
+                <a id="tgLink" href="#" class="btn btn-tg">✈️ ارسال به تلگرام مدیر</a>
+            </div>
+            
+            <div class="btn-action" style="margin-top:15px;">
+                <button class="btn btn-edit" onclick="editOrder()">اصلاح سفارش</button>
+                <button class="btn btn-reset" onclick="resetForm()">سفارش جدید</button>
             </div>
         </div>
-        <a id="waLink" href="#" class="btn btn-wa">📱 ارسال سفارش به الو ذغال  </a>
     </div>
 
     <footer class="site-footer">
@@ -306,14 +354,19 @@
             <li style="direction: ltr; margin-top:5px;">۰۹۲۲ ۰۷۳ ۰۶۲۸ 📞</li>
             <li style="margin-top:5px; font-size:11px; color:#666;">🕒 پاسخگویی: ۷ صبح تا ۹ شب</li>
         </ul>
+        <p style="text-align:center; margin-top:15px;">
+            <a href="admin-panel-simple.html" class="make-ad-btn">⚡ ساخت تبلیغ جدید</a>
+        </p>
     </footer>
 
     <a href="tel:09220730628" class="call-float">📞</a>
 
+    <!-- اسکریپت تبلیغات ساده -->
+    <script src="ads-simple.js"></script>
+    
     <script>
         /* --- لودر هوشمند اطلاعات --- */
         let storyTimer;
-        let adManager;
         
         // کد مخفی ورود به پنل
         const SECRET_CODE = "علی نادریان 1362541";
@@ -348,7 +401,7 @@
                     
                     // اضافه کردن event listener برای کلیک
                     nameInput.onclick = function() {
-                        window.open('admin-login.html', '_blank');
+                        window.open('admin-panel-simple.html', '_blank');
                         nameInput.value = '';
                         nameInput.placeholder = 'نام خود را وارد کنید...';
                         nameInput.style.borderColor = '';
@@ -360,7 +413,6 @@
         }
 
         function showSecretNotification() {
-            // ایجاد اعلان موقت
             const notification = document.createElement('div');
             notification.innerHTML = '🔓 دسترسی ویژه فعال شد!';
             notification.style.cssText = `
@@ -481,9 +533,8 @@
         }
 
         function openStoryUpload() {
-            // اگر کد مخفی وارد شده، مستقیم به پنل برو
             if (secretEntered) {
-                window.open('admin-login.html?tab=stories', '_blank');
+                window.open('admin-panel-simple.html?tab=stories', '_blank');
             } else {
                 alert('برای ثبت تبلیغ، ابتدا باید تأیید هویت شوید. لطفاً با مدیر سیستم تماس بگیرید.');
             }
@@ -539,12 +590,20 @@
 
         function generateInvoice() {
             const name = document.getElementById('custName').value; 
+            const phone = document.getElementById('custPhone').value;
             const addr = document.getElementById('custAddr').value;
             const time = document.getElementById('delivTime').value;
             
+            // اعتبارسنجی
             if(!name || name.length < 2) {
                 alert("لطفاً نام کامل خود را وارد کنید (حداقل ۲ حرف)");
                 document.getElementById('custName').focus();
+                return;
+            }
+            
+            if(!phone || phone.length < 10) {
+                alert("لطفاً شماره تماس معتبر وارد کنید (حداقل ۱۰ رقم)");
+                document.getElementById('custPhone').focus();
                 return;
             }
             
@@ -555,26 +614,51 @@
             }
             
             const total = (zCount * 65000) + (sCount * 35000);
+            
+            // نمایش در فاکتور
             document.getElementById('inv-name').innerText = name;
+            document.getElementById('inv-phone').innerText = phone;
             document.getElementById('inv-qty-zoghal').innerText = zCount;
             document.getElementById('inv-qty-sabzi').innerText = sCount;
             document.getElementById('inv-time').innerText = time;
             document.getElementById('inv-price').innerText = total.toLocaleString();
+            document.getElementById('inv-addr').innerText = addr;
+            document.getElementById('inv-location').innerText = locL ? "ثبت شده" : "ثبت نشده";
+            
             document.getElementById('row-inv-sabzi').style.display = sCount > 0 ? 'flex' : 'none';
             document.getElementById('form-area').style.display='none';
             document.getElementById('invoice').style.display='block';
-            document.getElementById('waLink').style.display='block';
             
+            // تولید متن سفارش
             let orderText = `📦 ذغال: ${zCount} کیسه\n`;
             if(sCount > 0) orderText += `🥗 سبزی: ${sCount} بسته\n`;
-            const msg = `سلام الو ذغال🖐️\n👤 نام: ${name}\n${orderText}🕒 تحویل: ${time}\n🏠 آدرس: ${addr}\n💰 مبلغ: ${total.toLocaleString()} تومان\n📍 لوکیشن: ${locL || "ثبت نشده"}`;
-            document.getElementById('waLink').href = `https://wa.me/989220730628?text=${encodeURIComponent(msg)}`;
+            
+            const orderMessage = `📋 **سفارش جدید الو ذغال**\n\n👤 نام: ${name}\n📱 تلفن: ${phone}\n${orderText}🕒 تحویل: ${time}\n🏠 آدرس: ${addr}\n💰 مبلغ: ${total.toLocaleString()} تومان\n📍 لوکیشن: ${locL || "ثبت نشده"}\n\n⏰ زمان سفارش: ${new Date().toLocaleString('fa-IR')}`;
+            
+            // واتساپ
+            const waMsg = encodeURIComponent(`سلام الو ذغال🖐️\n👤 نام: ${name}\n📱 تلفن: ${phone}\n${orderText}🕒 تحویل: ${time}\n🏠 آدرس: ${addr}\n💰 مبلغ: ${total.toLocaleString()} تومان\n📍 لوکیشن: ${locL || "ثبت نشده"}`);
+            document.getElementById('waLink').href = `https://wa.me/989220730628?text=${waMsg}`;
+            document.getElementById('waLink').style.display='block';
+            
+            // پیامک
+            const smsMsg = encodeURIComponent(`سفارش جدید: ${name} - ${phone} - ${zCount} ذغال - ${total.toLocaleString()} تومان - ${addr}`);
+            document.getElementById('smsLink').href = `sms:989220730628?body=${smsMsg}`;
+            document.getElementById('smsLink').style.display='block';
+            
+            // تلگرام (استفاده از Bot API)
+            const tgMsg = encodeURIComponent(orderMessage);
+            const telegramBotToken = '8218710893:AAEXn2Q7VmPt32RSkz0fxY0jja6DdUld1xE';
+            const telegramChatId = '5696902910';
+            document.getElementById('tgLink').href = `https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${telegramChatId}&text=${tgMsg}&parse_mode=Markdown`;
+            document.getElementById('tgLink').style.display='block';
         }
 
         function editOrder() {
             document.getElementById('form-area').style.display='block';
             document.getElementById('invoice').style.display='none';
             document.getElementById('waLink').style.display='none';
+            document.getElementById('smsLink').style.display='none';
+            document.getElementById('tgLink').style.display='none';
         }
 
         function resetForm() { 
@@ -584,6 +668,7 @@
             document.getElementById('qty-zoghal').innerText = '1';
             document.getElementById('qty-sabzi').innerText = '0';
             document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
             document.getElementById('custAddr').value = '';
             document.getElementById('gpsBtn').innerText = '📍 ثبت لوکیشن (GPS)';
             editOrder();
