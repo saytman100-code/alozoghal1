@@ -8,7 +8,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#050505">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
 
     <link rel="icon" href="https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg">
 
@@ -23,7 +23,6 @@
             display: flex; flex-direction: column; align-items: center; padding-bottom: 50px;
         }
 
-        /* --- استایل متن روان --- */
         .ticker-container {
             width: 100%; background: #000; border-bottom: 1px solid var(--gold);
             overflow: hidden; white-space: nowrap; padding: 8px 0; z-index: 1000; margin-bottom: 10px;
@@ -36,7 +35,6 @@
         .blink { animation: blinker 0.8s linear infinite; color: #fff; font-weight: bold; background: var(--fire); padding: 2px 6px; border-radius: 5px; margin: 0 5px; }
         @keyframes blinker { 50% { opacity: 0; } }
 
-        /* --- استایل استوری‌ها --- */
         .stories-container {
             display: flex; gap: 15px; padding: 15px 5px; overflow-x: auto; 
             width: 100%; max-width: 420px; scrollbar-width: none;
@@ -55,7 +53,6 @@
         .story-ring.add-btn { border: 2px dashed var(--gold); background: rgba(226, 176, 74, 0.1); }
         .story-item span { font-size: 11px; color: #ccc; text-align: center; }
         
-        /* --- استایل کادر تبلیغاتی هوشمند --- */
         .vip-ad-card {
             width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.05);
             border: 2px solid var(--gold); border-radius: 20px; padding: 15px; margin: 10px 0 20px 0;
@@ -79,7 +76,6 @@
         .vip-desc { color: #ccc; font-size: 12px; line-height: 1.5; }
         .btn-call-vip { background: #25D366; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 8px; }
 
-        /* --- استایل مودال و نوار پیشرفت --- */
         #story-modal {
             display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
             background:rgba(0,0,0,0.95); z-index:10000; justify-content:center; 
@@ -166,25 +162,29 @@
 
         .call-float { position: fixed; bottom: 20px; right: 20px; background: var(--gold); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 28px; z-index: 1000; }
         
-        /* استایل لینک پنل مدیریت */
-        .admin-link {
-            display: inline-block;
-            margin: 10px 0;
-            padding: 8px 15px;
-            background: rgba(226, 176, 74, 0.1);
-            border: 1px solid var(--gold);
-            border-radius: 10px;
-            color: var(--gold);
-            text-decoration: none;
-            font-size: 12px;
-            transition: 0.3s;
+        /* استایل مخفی برای لینک پنل */
+        .secret-admin-link {
+            position: fixed;
+            top: 5px;
+            left: 5px;
+            width: 30px;
+            height: 30px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 9999;
+            opacity: 0.1;
+            transition: opacity 0.3s;
         }
-        .admin-link:hover {
-            background: rgba(226, 176, 74, 0.2);
+        .secret-admin-link:hover {
+            opacity: 0.3;
         }
     </style>
 </head>
 <body>
+
+    <!-- دکمه مخفی ورود به پنل (فقط با هاور نشان داده می‌شود) -->
+    <button class="secret-admin-link" onclick="window.open('admin-login.html', '_blank')" title="ورود به پنل مدیریت">⚙️</button>
 
     <div class="ticker-container">
         <div class="ticker-text" id="ticker-box">🔥 الو ذغال | سفارش آنلاین ذغال مرغوب | تحویل سریع در ایذه 🔥</div>
@@ -203,8 +203,6 @@
         <div class="brand-container"><span class="fire-anim">🔥</span><div class="brand-name">الو ذغال</div><span class="fire-anim">🔥</span></div>
         <div class="sub-brand">سفارش سریع ذغال</div>
         
-        <a href="admin-login.html" class="admin-link">🔧 ورود به پنل مدیریت تبلیغات</a>
-        
         <div id="stories-wrapper" class="stories-container">
             <div class="story-item" id="add-story-btn" onclick="openStoryUpload()">
                 <div class="story-ring add-btn">
@@ -216,7 +214,7 @@
     </div>
 
     <div id="vip-ad-container">
-        <!-- تبلیغات به صورت خودکار از طریق AdManager لود می‌شوند -->
+        <!-- تبلیغات به صورت خودکار لود می‌شوند -->
     </div>
 
     <div id="story-modal">
@@ -244,7 +242,7 @@
 
     <div class="order-card">
         <div id="form-area">
-            <div class="form-group"><label>👤 نام و نام خانوادگی:</label><input type="text" id="custName" placeholder="نام خود را وارد کنید..."></div>
+            <div class="form-group"><label>👤 نام و نام خانوادگی:</label><input type="text" id="custName" placeholder="نام خود را وارد کنید..." oninput="checkSecretCode()"></div>
             <div class="form-group"><label>🕒 زمان تحویل:</label>
                 <select id="delivTime">
                     <option value="فوری">فوری</option>
@@ -308,38 +306,85 @@
             <li style="direction: ltr; margin-top:5px;">۰۹۲۲ ۰۷۳ ۰۶۲۸ 📞</li>
             <li style="margin-top:5px; font-size:11px; color:#666;">🕒 پاسخگویی: ۷ صبح تا ۹ شب</li>
         </ul>
-        <p style="text-align:center; margin-top:15px;">
-            <a href="admin-login.html" class="admin-link">🔧 پنل مدیریت تبلیغات</a>
-        </p>
     </footer>
 
     <a href="tel:09220730628" class="call-float">📞</a>
 
-    <!-- اسکریپت مدیریت تبلیغات -->
-    <script src="ads-manager.js"></script>
-    
     <script>
-        /* --- [اصلاح شده] لودر هوشمند اطلاعات --- */
+        /* --- لودر هوشمند اطلاعات --- */
         let storyTimer;
-        let adManager; // مدیر تبلیغات
+        let adManager;
+        
+        // کد مخفی ورود به پنل
+        const SECRET_CODE = "علی نادریان 1362541";
+        let secretEntered = false;
 
         async function loadAllContent() {
             try {
-                // ۱. تنظیم متن روان (Ticker)
                 updateTicker();
-                
-                // ۲. بارگذاری استوری‌ها
                 await loadStories();
-                
-                // ۳. مدیر تبلیغات به صورت خودکار از طریق ads-manager.js لود می‌شود
-                
             } catch (e) { 
                 console.log("خطا در بارگذاری محتوا:", e);
             }
         }
 
+        // تابع چک کردن کد مخفی
+        function checkSecretCode() {
+            const nameInput = document.getElementById('custName');
+            const enteredText = nameInput.value.trim();
+            
+            if (enteredText === SECRET_CODE && !secretEntered) {
+                secretEntered = true;
+                
+                // نمایش اعلان مخفی
+                showSecretNotification();
+                
+                // پاک کردن فیلد
+                setTimeout(() => {
+                    nameInput.value = '';
+                    nameInput.placeholder = 'برای ورود به پنل کلیک کنید';
+                    nameInput.style.borderColor = '#e2b04a';
+                    nameInput.style.boxShadow = '0 0 10px #e2b04a';
+                    
+                    // اضافه کردن event listener برای کلیک
+                    nameInput.onclick = function() {
+                        window.open('admin-login.html', '_blank');
+                        nameInput.value = '';
+                        nameInput.placeholder = 'نام خود را وارد کنید...';
+                        nameInput.style.borderColor = '';
+                        nameInput.style.boxShadow = '';
+                        nameInput.onclick = null;
+                    };
+                }, 1000);
+            }
+        }
+
+        function showSecretNotification() {
+            // ایجاد اعلان موقت
+            const notification = document.createElement('div');
+            notification.innerHTML = '🔓 دسترسی ویژه فعال شد!';
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(226, 176, 74, 0.9);
+                color: #000;
+                padding: 15px 25px;
+                border-radius: 15px;
+                font-weight: bold;
+                z-index: 10000;
+                animation: fadeInOut 2s ease-in-out;
+                box-shadow: 0 0 20px rgba(226, 176, 74, 0.8);
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
+        }
+
         function updateTicker() {
-            // می‌توانید از localStorage یا API برای دریافت متن تیکر استفاده کنید
             const tickerMessages = [
                 "🔥 پیشنهاد ویژه: با خرید 3 کیسه ذغال، یک بسته سبزی رایگان دریافت کنید!",
                 "🚚 تحویل رایگان برای سفارش‌های بالای 200,000 تومان",
@@ -359,11 +404,9 @@
                 const wrapper = document.getElementById('stories-wrapper');
                 const addBtn = document.getElementById('add-story-btn');
                 
-                // پاک کردن استوری‌های قبلی (به جز دکمه اضافه)
                 const existingStories = wrapper.querySelectorAll('.story-item:not(#add-story-btn)');
                 existingStories.forEach(story => story.remove());
                 
-                // اضافه کردن استوری‌های جدید
                 data.stories.forEach(story => {
                     const div = document.createElement('div');
                     div.className = 'story-item';
@@ -377,7 +420,6 @@
                     wrapper.insertBefore(div, addBtn);
                 });
                 
-                // ذخیره در localStorage برای کش
                 localStorage.setItem('cached_stories', JSON.stringify({
                     data: data.stories,
                     timestamp: Date.now()
@@ -393,7 +435,6 @@
             const cached = localStorage.getItem('cached_stories');
             if (cached) {
                 const { data, timestamp } = JSON.parse(cached);
-                // اگر کمتر از 24 ساعت گذشته باشد
                 if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
                     const wrapper = document.getElementById('stories-wrapper');
                     const addBtn = document.getElementById('add-story-btn');
@@ -414,7 +455,6 @@
             }
         }
 
-        /* --- توابع استوری با نوار پیشرفت --- */
         function showStory(img, link) {
             const modal = document.getElementById('story-modal');
             const fill = document.getElementById('story-progress-fill');
@@ -441,11 +481,14 @@
         }
 
         function openStoryUpload() {
-            // باز کردن پنل آپلود استوری
-            window.open('admin-login.html?tab=stories', '_blank');
+            // اگر کد مخفی وارد شده، مستقیم به پنل برو
+            if (secretEntered) {
+                window.open('admin-login.html?tab=stories', '_blank');
+            } else {
+                alert('برای ثبت تبلیغ، ابتدا باید تأیید هویت شوید. لطفاً با مدیر سیستم تماس بگیرید.');
+            }
         }
 
-        /* --- سایر توابع اصلی --- */
         const videoWrapper = document.getElementById('videoWrapper');
         const vids = document.querySelectorAll('#videoWrapper video');
         let currentVidIdx = 0;
@@ -567,4 +610,4 @@
         });
     </script>
 </body>
-  </html>
+    </html>
