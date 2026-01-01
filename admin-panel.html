@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت الو ذغال</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+        body { background: #050505; color: #fff; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #1a1a1a, #0a0a0a); border-radius: 15px; border: 2px solid #e2b04a; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 20px; background: #333; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .tab-btn:hover { background: #444; }
+        .tab-btn.active { background: #e2b04a; color: #000; }
+        .tab-content { display: none; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 15px; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #e2b04a; }
+        input, textarea, select { width: 100%; padding: 12px; background: #111; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; }
+        textarea { min-height: 100px; resize: vertical; }
+        .btn { padding: 12px 25px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-primary { background: #e2b04a; color: #000; }
+        .btn-primary:hover { background: #ffc966; }
+        .btn-secondary { background: #333; color: #fff; }
+        .btn-secondary:hover { background: #444; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-danger:hover { background: #e74c3c; }
+        .ad-preview { border: 2px dashed #e2b04a; padding: 20px; border-radius: 15px; margin-top: 20px; background: rgba(226,176,74,0.05); }
+        .preview-item { background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 10px; border-left: 4px solid #e2b04a; }
+        .preview-item h4 { color: #e2b04a; margin-bottom: 5px; }
+        .preview-item p { color: #ccc; font-size: 13px; }
+        .code-output { background: #000; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 12px; overflow-x: auto; white-space: pre-wrap; border: 1px solid #333; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #1a1a1a; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #333; }
+        .stat-card h3 { color: #e2b04a; font-size: 24px; }
+        .stat-card p { color: #999; font-size: 14px; }
+        .message { padding: 10px; margin: 10px 0; border-radius: 8px; display: none; }
+        .success { background: rgba(0,255,0,0.1); color: #0f0; border: 1px solid #0f0; }
+        .error { background: rgba(255,0,0,0.1); color: #f00; border: 1px solid #f00; }
+        .info { background: rgba(0,150,255,0.1); color: #0096ff; border: 1px solid #0096ff; }
+        .logout-btn { position: fixed; top: 20px; left: 20px; background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        .back-btn { position: fixed; top: 20px; right: 20px; background: #333; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        
+        /* استایل VIP تبلیغات */
+        .vip-ad-preview {
+            width: 100%; max-width: 420px; background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #e2b04a; border-radius: 20px; padding: 15px; margin: 10px 0;
+            display: flex; align-items: center; gap: 15px; position: relative; overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .vip-img-preview { width: 75px; height: 75px; border-radius: 12px; object-fit: cover; border: 1px solid #e2b04a; }
+        .vip-info-preview { flex: 1; text-align: right; }
+        .vip-title-preview { color: #e2b04a; font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+        .vip-desc-preview { color: #ccc; font-size: 12px; line-height: 1.5; }
+        .btn-call-preview { background: #25D366; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 8px; }
+        
+        /* استایل برای موبایل */
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .tabs { flex-direction: column; }
+            .tab-btn { width: 100%; }
+            .logout-btn, .back-btn { position: relative; top: auto; left: auto; right: auto; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- دکمه خروج -->
+    <button class="logout-btn" onclick="logout()">🚪 خروج</button>
+    
+    <!-- دکمه بازگشت -->
+    <button class="back-btn" onclick="goBack()">🔙 بازگشت</button>
+
+    <div class="container">
+        <div class="header">
+            <h1 style="color:#e2b04a;">🔥 پنل مدیریت تبلیغات الو ذغال</h1>
+            <p style="color:#999;">ایجاد و مدیریت تبلیغات VIP به راحتی</p>
+        </div>
+
+        <!-- تب‌ها -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('create')">➕ ایجاد تبلیغ جدید</button>
+            <button class="tab-btn" onclick="showTab('manage')">📊 مدیریت تبلیغات</button>
+            <button class="tab-btn" onclick="showTab('stories')">📱 مدیریت استوری‌ها</button>
+            <button class="tab-btn" onclick="showTab('stats')">📈 آمار و گزارش</button>
+        </div>
+
+        <!-- تب ایجاد تبلیغ -->
+        <div id="create-tab" class="tab-content active">
+            <h2 style="color:#e2b04a; margin-bottom:20px;">ایجاد تبلیغ جدید</h2>
+            
+            <div class="form-group">
+                <label>عنوان تبلیغ:</label>
+                <input type="text" id="ad-title" placeholder="مثلا: تخفیف ویژه نوروز">
+            </div>
+
+            <div class="form-group">
+                <label>توضیحات تبلیغ:</label>
+                <textarea id="ad-desc" placeholder="توضیحات کامل تبلیغ را اینجا بنویسید..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>آدرس تصویر:</label>
+                <input type="text" id="ad-image" placeholder="https://example.com/image.jpg">
+                <small style="color:#888; display:block; margin-top:5px;">می‌توانید از طریق <a href="https://imgur.com" target="_blank" style="color:#e2b04a;">Imgur</a> آپلود کنید</small>
+            </div>
+
+            <div class="form-group">
+                <label>شماره تماس:</label>
+                <input type="text" id="ad-phone" placeholder="989220730628" value="989220730628">
+            </div>
+
+            <div class="form-group">
+                <label>نوع تبلیغ:</label>
+                <select id="ad-type">
+                    <option value="vip">تبلیغ VIP (تبدیل به مشتری)</option>
+                    <option value="story">استوری اینستاگرام</option>
+                    <option value="banner">بنر متحرک</option>
+                    <option value="special">پیشنهاد ویژه</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>مدت نمایش (روز):</label>
+                <select id="ad-duration">
+                    <option value="1">۱ روز</option>
+                    <option value="3">۳ روز</option>
+                    <option value="7" selected>۷ روز</option>
+                    <option value="30">۳۰ روز</option>
+                    <option value="365">همیشگی</option>
+                </select>
+            </div>
+
+            <button onclick="generateAdCode()" class="btn btn-primary">🎯 تولید کد تبلیغ</button>
+            <button onclick="previewAd()" class="btn btn-secondary">👁️ پیش نمایش</button>
+
+            <div id="preview-area" class="ad-preview" style="display:none;">
+                <h3>پیش نمایش تبلیغ:</h3>
+                <div id="ad-preview-content"></div>
+            </div>
+
+            <div id="code-output" class="code-output" style="display:none; margin-top:20px;">
+                <h3 style="color:#e2b04a;">📋 کد تبلیغ:</h3>
+                <div id="generated-code"></div>
+                <button onclick="copyCode()" class="btn btn-primary" style="margin-top:10px;">📋 کپی کد</button>
+                <button onclick="addToAdsJson()" class="btn" style="margin-top:10px; background:#25D366; color:#fff;">💾 ذخیره در لیست تبلیغات</button>
+                <div id="save-message" class="message" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- تب مدیریت تبلیغات -->
+        <div id="manage-tab" class="tab-content">
+            <h2 style="color:#e2b04a; margin-bottom:20px;">تبلیغات فعال</h2>
+            <button onclick="loadAdsList()" class="btn btn-primary">🔄 بارگذاری مجدد</button>
+            <div id="ads-list" style="margin-top:20px;">
+                <p>در حال بارگذاری...</p>
+            </div>
+        </div>
+
+        <!-- تب مدیریت استوری‌ها -->
+        <div id="stories-tab" class="tab-content">
+            <h2 style="color:#e2b04a; margin-bottom:20px;">مدیریت استوری‌ها</h2>
+            <div class="form-group">
+                <label>عنوان استوری:</label>
+                <input type="text" id="story-title" placeholder="مثلا: تخفیف 50%">
+            </div>
+            <div class="form-group">
+                <label>آدرس تصویر کوچک:</label>
+                <input type="text" id="story-thumb" placeholder="https://example.com/thumb.jpg">
+            </div>
+            <div class="form-group">
+                <label>آدرس تصویر اصلی:</label>
+                <input type="text" id="story-image" placeholder="https://example.com/full.jpg">
+            </div>
+            <div class="form-group">
+                <label>لینک استوری:</label>
+                <input type="text" id="story-link" placeholder="https://wa.me/989220730628">
+            </div>
+            <button onclick="addStory()" class="btn btn-primary">➕ افزودن استوری</button>
+            <div id="stories-list" style="margin-top:20px;"></div>
+        </div>
+
+        <!-- تب آمار -->
+        <div id="stats-tab" class="tab-content">
+            <h2 style="color:#e2b04a; margin-bottom:20px;">آمار و گزارش</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="total-ads">0</h3>
+                    <p>تبلیغات فعال</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="total-stories">0</h3>
+                    <p>استوری‌ها</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="today-clicks">0</h3>
+                    <p>کلیک امروز</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="total-clicks">0</h3>
+                    <p>کلیک کل</p>
+                </div>
+            </div>
+            <div style="margin-top:30px;">
+                <h3>📊 گزارش اخیر:</h3>
+                <div id="recent-activity" style="margin-top:10px;">
+                    <p>در حال بارگذاری...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // چک کردن لاگین
+        window.addEventListener('load', function() {
+            checkLogin();
+            loadStats();
+            loadAdsList();
+        });
+
+        function checkLogin() {
+            const loggedIn = sessionStorage.getItem('admin_logged_in');
+            const loginTime = parseInt(sessionStorage.getItem('admin_login_time'));
+            
+            if(loggedIn !== 'true' || (Date.now() - loginTime > 2 * 60 * 60 * 1000)) {
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('admin_logged_in');
+            sessionStorage.removeItem('admin_login_time');
+            window.location.href = 'admin-login.html';
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function generateAdCode() {
+            const title = document.getElementById('ad-title').value;
+            const desc = document.getElementById('ad-desc').value;
+            const image = document.getElementById('ad-image').value;
+            const phone = document.getElementById('ad-phone').value;
+            const type = document.getElementById('ad-type').value;
+            const duration = document.getElementById('ad-duration').value;
+            
+            if(!title || !desc || !image) {
+                showMessage('لطفا عنوان، توضیحات و تصویر را وارد کنید', 'error');
+                return;
+            }
+
+            // ایجاد کد HTML تبلیغ
+            const adCode = `<!-- تبلیغ ${type} - مدت: ${duration} روز -->
+<div class="vip-ad-card fade-anim">
+    <img src="${image}" class="vip-img" alt="${title}">
+    <div class="vip-info">
+        <div class="vip-title">${title}</div>
+        <div class="vip-desc">${desc}</div>
+        <a href="tel:${phone}" class="btn-call-vip">📞 تماس مستقیم</a>
+        <small style="color:#888; font-size:10px; display:block; margin-top:5px;">تبلیغ ${type} - منقضی: ${calculateExpiry(duration)}</small>
+    </div>
+</div>`;
+
+            // ایجاد کد JSON
+            const jsonCode = {
+                title: title,
+                desc: desc,
+                image: image,
+                phone: phone,
+                type: type,
+                duration: duration,
+                expiry: calculateExpiry(duration),
+                created: new Date().toISOString()
+            };
+
+            document.getElementById('generated-code').innerHTML = 
+                `<strong>کد HTML:</strong>\n<pre>${adCode}</pre>\n\n<strong>کد JSON:</strong>\n<pre>${JSON.stringify(jsonCode, null, 2)}</pre>`;
+            
+            document.getElementById('code-output').style.display = 'block';
+        }
+
+        function calculateExpiry(days) {
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + parseInt(days));
+            return expiryDate.toLocaleDateString('fa-IR');
+        }
+
+        function previewAd() {
+            const title = document.getElementById('ad-title').value || "عنوان نمونه";
+            const desc = document.getElementById('ad-desc').value || "توضیحات نمونه تبلیغ";
+            const image = document.getElementById('ad-image').value || "https://via.placeholder.com/150";
+            const phone = document.getElementById('ad-phone').value || "989220730628";
+            
+            const previewHTML = `
+<div class="vip-ad-preview">
+    <img src="${image}" class="vip-img-preview">
+    <div class="vip-info-preview">
+        <div class="vip-title-preview">${title}</div>
+        <div class="vip-desc-preview">${desc}</div>
+        <button class="btn-call-preview">📞 تماس مستقیم</button>
+    </div>
+</div>`;
+
+            document.getElementById('ad-preview-content').innerHTML = previewHTML;
+            document.getElementById('preview-area').style.display = 'block';
+        }
+
+        function copyCode() {
+            const code = document.getElementById('generated-code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                showMessage('کد با موفقیت کپی شد!', 'success');
+            });
+        }
+
+        function addToAdsJson() {
+            const title = document.getElementById('ad-title').value;
+            const desc = document.getElementById('ad-desc').value;
+            const image = document.getElementById('ad-image').value;
+            const phone = document.getElementById('ad-phone').value;
+            const type = document.getElementById('ad-type').value;
+            const duration = document.getElementById('ad-duration').value;
+            
+            const adData = {
+                id: 'ad_' + Date.now(),
+                title: title,
+                desc: desc,
+                image: image,
+                phone: phone,
+                type: type,
+                duration: duration,
+                expiry: calculateExpiry(duration),
+                created: new Date().toISOString(),
+                clicks: 0
+            };
+
+            try {
+                // ذخیره در localStorage
+                localStorage.setItem(adData.id, JSON.stringify(adData));
+                
+                // نمایش پیام موفقیت
+                showMessage('✅ تبلیغ با موفقیت ذخیره شد!', 'success', 'save-message');
+                
+                // آپدیت لیست
+                loadAdsList();
+                loadStats();
+                
+                // ریست فرم
+                document.getElementById('ad-title').value = '';
+                document.getElementById('ad-desc').value = '';
+                document.getElementById('ad-image').value = '';
+                
+            } catch (error) {
+                showMessage('خطا در ذخیره سازی: ' + error, 'error', 'save-message');
+            }
+        }
+
+        function loadAdsList() {
+            const adsList = document.getElementById('ads-list');
+            adsList.innerHTML = '<p>در حال بارگذاری...</p>';
+            
+            // جمع‌آوری همه تبلیغات از localStorage
+            let ads = [];
+            for(let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if(key.startsWith('ad_')) {
+                    try {
+                        const ad = JSON.parse(localStorage.getItem(key));
+                        ads.push({id: key, ...ad});
+                    } catch(e) {
+                        console.warn('خطا در پردازش تبلیغ:', key);
+                    }
+                }
+            }
+            
+            if(ads.length === 0) {
+                adsList.innerHTML = '<p class="info">هیچ تبلیغی یافت نشد.</p>';
+                return;
+            }
+            
+            // مرتب سازی بر اساس تاریخ ایجاد (جدیدترین اول)
+            ads.sort((a, b) => new Date(b.created) - new Date(a.created));
+            
+            let html = '';
+            ads.forEach((ad) => {
+                html += `
+                <div class="preview-item">
+                    <h4>${ad.title} (${ad.type})</h4>
+                    <p>${ad.desc.substring(0, 100)}...</p>
+                    <small>ایجاد: ${new Date(ad.created).toLocaleDateString('fa-IR')} | کلیک: ${ad.clicks || 0}</small>
+                    <div style="margin-top:10px;">
+                        <button onclick="editAd('${ad.id}')" class="btn btn-secondary" style="padding:5px 10px; font-size:12px;">✏️ ویرایش</button>
+                        <button onclick="deleteAd('${ad.id}')" class="btn btn-danger" style="padding:5px 10px; font-size:12px;">🗑️ حذف</button>
+                    </div>
+                </div>`;
+            });
+            
+            adsList.innerHTML = html;
+        }
+
+        function loadStats() {
+            let adCount = 0;
+            let storyCount = 0;
+            let totalClicks = 0;
+            let todayClicks = 0;
+            const today = new Date().toDateString();
+            
+            for(let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if(key.startsWith('ad_')) {
+                    adCount++;
+                    try {
+                        const ad = JSON.parse(localStorage.getItem(key));
+                        totalClicks += (ad.clicks || 0);
+                        
+                        // کلیک‌های امروز
+                        if(ad.lastClick) {
+                            const clickDate = new Date(ad.lastClick).toDateString();
+                            if(clickDate === today) {
+                                todayClicks += (ad.clicks || 0);
+                            }
+                        }
+                    } catch(e) {}
+                } else if(key.startsWith('story_')) {
+                    storyCount++;
+                }
+            }
+            
+            document.getElementById('total-ads').textContent = adCount;
+            document.getElementById('total-stories').textContent = storyCount;
+            document.getElementById('today-clicks').textContent = todayClicks;
+            document.getElementById('total-clicks').textContent = totalClicks;
+            
+            // نمایش فعالیت اخیر
+            showRecentActivity();
+        }
+
+        function showRecentActivity() {
+            const activityEl = document.getElementById('recent-activity');
+            let activities = [];
+            
+            for(let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if(key.startsWith('ad_')) {
+                    try {
+                        const ad = JSON.parse(localStorage.getItem(key));
+                        activities.push({
+                            type: 'تبلیغ',
+                            title: ad.title,
+                            date: ad.created,
+                            clicks: ad.clicks || 0
+                        });
+                    } catch(e) {}
+                }
+            }
+            
+            // مرتب سازی بر اساس تاریخ
+            activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if(activities.length === 0) {
+                activityEl.innerHTML = '<p>هیچ فعالیتی ثبت نشده است.</p>';
+                return;
+            }
+            
+            let html = '';
+            activities.slice(0, 5).forEach(activity => {
+                html += `<p>📌 ${activity.title} - ${new Date(activity.date).toLocaleDateString('fa-IR')} (${activity.clicks} کلیک)</p>`;
+            });
+            
+            activityEl.innerHTML = html;
+        }
+
+        function deleteAd(adId) {
+            if(confirm("آیا مطمئنید می‌خواهید این تبلیغ را حذف کنید؟")) {
+                localStorage.removeItem(adId);
+                loadAdsList();
+                loadStats();
+                showMessage('تبلیغ با موفقیت حذف شد!', 'success');
+            }
+        }
+
+        function editAd(adId) {
+            const ad = JSON.parse(localStorage.getItem(adId));
+            if(ad) {
+                document.getElementById('ad-title').value = ad.title;
+                document.getElementById('ad-desc').value = ad.desc;
+                document.getElementById('ad-image').value = ad.image;
+                document.getElementById('ad-phone').value = ad.phone;
+                document.getElementById('ad-type').value = ad.type || 'vip';
+                
+                showTab('create');
+                showMessage('تبلیغ برای ویرایش بارگذاری شد. تغییرات را اعمال و دوباره ذخیره کنید.', 'info');
+            }
+        }
+
+        function addStory() {
+            const title = document.getElementById('story-title').value;
+            const thumb = document.getElementById('story-thumb').value;
+            const image = document.getElementById('story-image').value;
+            const link = document.getElementById('story-link').value;
+            
+            if(!title || !thumb || !image) {
+                showMessage('لطفا تمام فیلدهای استوری را پر کنید', 'error');
+                return;
+            }
+            
+            const storyData = {
+                id: 'story_' + Date.now(),
+                name: title,
+                thumb: thumb,
+                image: image,
+                link: link,
+                created: new Date().toISOString()
+            };
+            
+            localStorage.setItem(storyData.id, JSON.stringify(storyData));
+            
+            showMessage('استوری با موفقیت افزوده شد!', 'success');
+            
+            // ریست فرم
+            document.getElementById('story-title').value = '';
+            document.getElementById('story-thumb').value = '';
+            document.getElementById('story-image').value = '';
+            document.getElementById('story-link').value = '';
+        }
+
+        function showMessage(text, type, elementId = null) {
+            const msgEl = elementId ? document.getElementById(elementId) : document.createElement('div');
+            msgEl.textContent = text;
+            msgEl.className = `message ${type}`;
+            msgEl.style.display = 'block';
+            
+            if(!elementId) {
+                document.querySelector('.container').insertBefore(msgEl, document.querySelector('.container').firstChild);
+                setTimeout(() => msgEl.remove(), 3000);
+            } else {
+                setTimeout(() => {
+                    msgEl.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // اگر تب از URL مشخص شده باشد
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if(tab && ['create', 'manage', 'stories', 'stats'].includes(tab)) {
+                showTab(tab);
+            }
+        });
+    </script>
+</body>
+</html>
