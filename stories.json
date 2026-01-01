@@ -1,0 +1,22 @@
+{
+  "stories": [
+    {
+      "name": "ویژه",
+      "thumb": "https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg",
+      "image": "https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg",
+      "link": "https://wa.me/989220730628"
+    },
+    {
+      "name": "تخفیف",
+      "thumb": "https://via.placeholder.com/150/FFD700/000000?text=الو+ذغال",
+      "image": "https://via.placeholder.com/400/FFD700/000000?text=تخفیف+ویژه",
+      "link": "tel:09220730628"
+    },
+    {
+      "name": "جدید",
+      "thumb": "https://via.placeholder.com/150/FF4500/FFFFFF?text=جدید",
+      "image": "https://via.placeholder.com/400/FF4500/FFFFFF?text=محصول+جدید",
+      "link": "https://wa.me/989220730628?text=سلام%20میخوام%20درمورد%20محصول%20جدید%20بدانم"
+    }
+  ]
+}
