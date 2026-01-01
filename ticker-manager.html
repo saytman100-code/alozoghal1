@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت متن روان - الو ذغال</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+        body { background: #050505; color: #fff; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a); 
+            border-radius: 15px; 
+            border: 2px solid #e2b04a; 
+        }
+        
+        .form-box { 
+            background: rgba(255,255,255,0.05); 
+            padding: 25px; 
+            border-radius: 15px; 
+            border: 1px solid #333; 
+            margin-bottom: 20px; 
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #e2b04a; font-size: 14px; }
+        textarea { 
+            width: 100%; 
+            padding: 12px; 
+            background: #111; 
+            border: 1px solid #333; 
+            border-radius: 8px; 
+            color: #fff; 
+            font-size: 14px;
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .btn { 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin: 5px; 
+            transition: 0.3s; 
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #e2b04a, #b8860b); 
+            color: #000; 
+        }
+        
+        .btn-primary:hover { background: linear-gradient(135deg, #ffc966, #d4a017); }
+        
+        .instructions {
+            background: rgba(0,150,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #0096ff;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+        
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background: rgba(0,255,0,0.1);
+            color: #0f0;
+            border: 1px solid #0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color:#e2b04a;">📝 مدیریت متن روان (Ticker)</h1>
+            <p style="color:#999;">ایجاد و مدیریت متن‌های تبلیغاتی بالای سایت</p>
+        </div>
+
+        <div class="instructions">
+            <strong>💡 نکات:</strong>
+            <ul style="margin-top:10px; padding-right:20px;">
+                <li>هر خط یک متن تبلیغاتی جداگانه است</li>
+                <li>متن‌ها هر 30 ثانیه به طور خودکار تغییر می‌کنند</li>
+                <li>حداکثر 10 متن می‌توانید اضافه کنید</li>
+                <li>متن‌ها در مرورگر کاربران ذخیره می‌شود</li>
+            </ul>
+        </div>
+
+        <div class="form-box">
+            <div class="form-group">
+                <label>متن‌های تبلیغاتی (هر خط یک متن):</label>
+                <textarea id="ticker-texts" placeholder="مثال:
+🔥 الو ذغال | سفارش آنلاین ذغال مرغوب
+🎉 با خرید 3 کیسه ذغال، سبزی رایگان
+🚚 تحویل رایگان برای سفارش‌های بالا
+⭐ ذغال مرغوب کبابی با کیفیت عالی"></textarea>
+            </div>
+
+            <button onclick="saveTickers()" class="btn btn-primary">💾 ذخیره متن‌ها</button>
+            <button onclick="loadCurrentTickers()" class="btn" style="background:#555; color:#fff;">📥 بارگیری متن‌های فعلی</button>
+            <button onclick="resetToDefault()" class="btn" style="background:#dc3545; color:#fff;">🔄 بازنشانی به پیش‌فرض</button>
+        </div>
+
+        <div id="message" class="message"></div>
+        
+        <div style="text-align:center; margin-top:30px;">
+            <button onclick="window.history.back()" class="btn" style="background:#555; color:#fff;">🔙 بازگشت</button>
+        </div>
+    </div>
+
+    <script>
+        function loadCurrentTickers() {
+            const savedTickers = localStorage.getItem('aloozoghal_tickers');
+            if(savedTickers) {
+                try {
+                    const tickers = JSON.parse(savedTickers);
+                    document.getElementById('ticker-texts').value = tickers.join('\n');
+                    showMessage('✅ متن‌های فعلی بارگیری شدند', 'success');
+                } catch(e) {
+                    showMessage('⚠️ خطا در بارگیری متن‌ها', 'error');
+                }
+            } else {
+                // پیش‌فرض
+                const defaultTickers = [
+                    "🔥 الو ذغال | سفارش آنلاین ذغال مرغوب | تحویل سریع در ایذه",
+                    "🎉 با خرید 3 کیسه ذغال، یک بسته سبزی رایگان دریافت کنید!",
+                    "🚚 تحویل رایگان برای سفارش‌های بالای 200,000 تومان",
+                    "⭐ ذغال مرغوب کبابی با کیفیت عالی | ضمانت برگشت"
+                ];
+                document.getElementById('ticker-texts').value = defaultTickers.join('\n');
+                showMessage('📝 متن‌های پیش‌فرض بارگیری شدند', 'success');
+            }
+        }
+        
+        function saveTickers() {
+            const text = document.getElementById('ticker-texts').value.trim();
+            if(!text) {
+                showMessage('❌ لطفا متن‌ها را وارد کنید', 'error');
+                return;
+            }
+            
+            const tickers = text.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            if(tickers.length === 0) {
+                showMessage('❌ هیچ متن معتبری وارد نشده', 'error');
+                return;
+            }
+            
+            if(tickers.length > 10) {
+                showMessage('⚠️ فقط 10 متن اول ذخیره می‌شوند', 'warning');
+                tickers.splice(10);
+            }
+            
+            localStorage.setItem('aloozoghal_tickers', JSON.stringify(tickers));
+            
+            // همچنین در localStorage اصلی سایت ذخیره شود
+            if(window.opener) {
+                try {
+                    window.opener.localStorage.setItem('aloozoghal_tickers', JSON.stringify(tickers));
+                    window.opener.location.reload();
+                } catch(e) {}
+            }
+            
+            showMessage(`✅ ${tickers.length} متن ذخیره شد`, 'success');
+        }
+        
+        function resetToDefault() {
+            if(!confirm("آیا مطمئنید می‌خواهید به متن‌های پیش‌فرض بازگردید؟")) {
+                return;
+            }
+            
+            const defaultTickers = [
+                "🔥 الو ذغال | سفارش آنلاین ذغال مرغوب | تحویل سریع در ایذه",
+                "🎉 با خرید 3 کیسه ذغال، یک بسته سبزی رایگان دریافت کنید!",
+                "🚚 تحویل رایگان برای سفارش‌های بالای 200,000 تومان",
+                "⭐ ذغال مرغوب کبابی با کیفیت عالی | ضمانت برگشت"
+            ];
+            
+            document.getElementById('ticker-texts').value = defaultTickers.join('\n');
+            localStorage.setItem('aloozoghal_tickers', JSON.stringify(defaultTickers));
+            
+            if(window.opener) {
+                try {
+                    window.opener.localStorage.setItem('aloozoghal_tickers', JSON.stringify(defaultTickers));
+                    window.opener.location.reload();
+                } catch(e) {}
+            }
+            
+            showMessage('✅ متن‌ها به پیش‌فرض بازنشانی شدند', 'success');
+        }
+        
+        function showMessage(text, type) {
+            const msgEl = document.getElementById('message');
+            msgEl.textContent = text;
+            msgEl.className = 'message ' + type;
+            msgEl.style.display = 'block';
+            
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        // بارگذاری اولیه
+        document.addEventListener('DOMContentLoaded', loadCurrentTickers);
+    </script>
+</body>
+</html>
