@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل پیشرفته تبلیغات - الو ذغال</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+        body { background: #050505; color: #fff; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a); 
+            border-radius: 15px; 
+            border: 2px solid #e2b04a; 
+        }
+        
+        .form-box { 
+            background: rgba(255,255,255,0.05); 
+            padding: 25px; 
+            border-radius: 15px; 
+            border: 1px solid #333; 
+            margin-bottom: 20px; 
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #e2b04a; font-size: 14px; }
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            background: #111; 
+            border: 1px solid #333; 
+            border-radius: 8px; 
+            color: #fff; 
+            font-size: 14px; 
+        }
+        
+        textarea { min-height: 80px; resize: vertical; }
+        
+        .btn { 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin: 5px; 
+            transition: 0.3s; 
+        }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #e2b04a, #b8860b); 
+            color: #000; 
+        }
+        
+        .btn-primary:hover { background: linear-gradient(135deg, #ffc966, #d4a017); }
+        
+        .code-output { 
+            background: #000; 
+            padding: 20px; 
+            border-radius: 10px; 
+            font-family: monospace; 
+            font-size: 13px; 
+            overflow-x: auto; 
+            white-space: pre-wrap; 
+            border: 2px dashed #e2b04a; 
+            margin-top: 20px; 
+            display: none; 
+        }
+        
+        .instructions {
+            background: rgba(0,150,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #0096ff;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+        
+        .bulk-area {
+            margin-top: 20px;
+        }
+        
+        .ad-counter {
+            background: #333;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color:#e2b04a;">⚡ پنل پیشرفته تبلیغات الو ذغال</h1>
+            <p style="color:#999;">تبلیغات دسته‌جمعی با کاما خودکار</p>
+        </div>
+
+        <div class="instructions">
+            <strong>🎯 دستورالعمل:</strong>
+            <ol style="margin-top:10px; padding-right:20px;">
+                <li>تبلیغ‌ها را یکی یکی بسازید</li>
+                <li>هر بار «اضافه به لیست» بزنید</li>
+                <li>وقتی همه اضافه شدند، «تولید کد نهایی» بزنید</li>
+                <li>کد تولید شده را در فایل ads-simple.js جایگزین کنید</li>
+            </ol>
+        </div>
+
+        <!-- فرم ساخت تبلیغ -->
+        <div class="form-box">
+            <h3 style="color:#e2b04a; margin-bottom:20px;">📝 ساخت تبلیغ جدید</h3>
+            
+            <div class="ad-counter" id="ad-counter">
+                تبلیغ‌های ساخته شده: <span id="ad-count">0</span>
+            </div>
+            
+            <div class="form-group">
+                <label>عنوان تبلیغ:</label>
+                <input type="text" id="title" placeholder="مثلا: تخفیف ویژه نوروز">
+            </div>
+
+            <div class="form-group">
+                <label>توضیحات تبلیغ:</label>
+                <textarea id="desc" placeholder="توضیحات کامل تبلیغ..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>آدرس تصویر:</label>
+                <input type="text" id="image" placeholder="https://i.postimg.cc/آدرس-تصویر.jpg">
+            </div>
+
+            <div class="form-group">
+                <label>شماره تماس:</label>
+                <input type="text" id="phone" value="989220730628">
+            </div>
+
+            <div class="form-group">
+                <label>تاریخ انقضا (مثال: ۱۴۰۴/۱۰/۱۸):</label>
+                <input type="text" id="expiry" placeholder="۱۴۰۴/۱۰/۱۸">
+            </div>
+
+            <button onclick="addToBulkList()" class="btn btn-primary">➕ اضافه به لیست تبلیغات</button>
+            <button onclick="clearCurrentForm()" class="btn" style="background:#555; color:#fff;">🗑️ پاک کردن فرم</button>
+        </div>
+
+        <!-- لیست تبلیغات -->
+        <div class="bulk-area">
+            <div class="form-box">
+                <h3 style="color:#e2b04a; margin-bottom:20px;">📦 لیست تبلیغ‌های ساخته شده</h3>
+                
+                <div class="form-group">
+                    <label>تبلیغ‌های آماده:</label>
+                    <textarea id="bulk-list" rows="10" readonly style="background:#1a1a1a;"></textarea>
+                </div>
+
+                <button onclick="generateFinalCode()" class="btn btn-primary" style="background:#25D366;">🚀 تولید کد نهایی</button>
+                <button onclick="clearBulkList()" class="btn" style="background:#dc3545; color:#fff;">🗑️ پاک کردن همه</button>
+                <button onclick="loadSampleAds()" class="btn" style="background:#0096ff; color:#fff;">📋 بارگیری نمونه</button>
+            </div>
+        </div>
+
+        <!-- خروجی کد -->
+        <div id="code-output" class="code-output">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="color:#e2b04a; margin:0;">📋 کد آماده:</h3>
+                <button onclick="copyAllCode()" class="btn btn-primary" style="padding:8px 15px; font-size:12px;">
+                    📋 کپی همه کد
+                </button>
+            </div>
+            <div id="generated-code"></div>
+            
+            <div style="margin-top:20px; padding-top:20px; border-top:1px solid #333;">
+                <h4 style="color:#e2b04a; margin-bottom:10px;">📌 دستورالعمل نصب:</h4>
+                <ol style="color:#ccc; font-size:12px; line-height:1.8; padding-right:20px;">
+                    <li>کد بالا را کپی کنید</li>
+                    <li>به فایل <code>ads-simple.js</code> بروید</li>
+                    <li>تمام محتوای فایل را پاک کنید</li>
+                    <li>کد کپی شده را جایگزین کنید</li>
+                    <li>تغییرات را ذخیره کنید</li>
+                    <li>صفحه سایت را Refresh کنید (F5)</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div style="text-align:center; margin-top:30px;">
+            <button onclick="window.history.back()" class="btn" style="background:#555; color:#fff;">🔙 بازگشت</button>
+        </div>
+    </div>
+
+    <script>
+        let adsList = [];
+        
+        function addToBulkList() {
+            const title = document.getElementById('title').value.trim();
+            const desc = document.getElementById('desc').value.trim();
+            const image = document.getElementById('image').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const expiry = document.getElementById('expiry').value.trim();
+            
+            if(!title || !desc || !image) {
+                alert("❌ لطفا عنوان، توضیحات و تصویر را وارد کنید");
+                return;
+            }
+            
+            const newAd = {
+                title: title,
+                desc: desc,
+                image: image,
+                phone: phone || "989220730628",
+                expiry: expiry || "بدون انقضا"
+            };
+            
+            adsList.push(newAd);
+            updateBulkDisplay();
+            clearCurrentForm();
+            
+            alert(`✅ تبلیغ به لیست اضافه شد (تعداد: ${adsList.length})`);
+        }
+        
+        function updateBulkDisplay() {
+            const displayText = adsList.map((ad, index) => {
+                return `${index + 1}. ${ad.title}\n   📝 ${ad.desc.substring(0, 50)}...`;
+            }).join('\n\n');
+            
+            document.getElementById('bulk-list').value = displayText;
+            document.getElementById('ad-count').textContent = adsList.length;
+        }
+        
+        function clearCurrentForm() {
+            document.getElementById('title').value = '';
+            document.getElementById('desc').value = '';
+            document.getElementById('image').value = '';
+            document.getElementById('expiry').value = '';
+        }
+        
+        function clearBulkList() {
+            if(adsList.length === 0) {
+                alert("⚠️ لیست تبلیغ‌ها خالی است");
+                return;
+            }
+            
+            if(confirm(`آیا مطمئنید می‌خواهید ${adsList.length} تبلیغ را پاک کنید؟`)) {
+                adsList = [];
+                updateBulkDisplay();
+                alert("✅ همه تبلیغ‌ها پاک شدند");
+            }
+        }
+        
+        function generateFinalCode() {
+            if(adsList.length === 0) {
+                alert("❌ لیست تبلیغ‌ها خالی است");
+                return;
+            }
+            
+            // تولید آرایه JSON با کاماهای صحیح
+            const adsArrayString = JSON.stringify(adsList, null, 2);
+            
+            // تولید کد کامل
+            const fullCode = `// سیستم تبلیغات الو ذغال
+const adsList = ${adsArrayString};
+
+let currentAd = 0;
+let timer = null;
+
+function showAd() {
+  const container = document.getElementById('vip-ad-container');
+  if (!container || !adsList.length) return;
+  
+  const ad = adsList[currentAd];
+  
+  container.innerHTML = \`
+    <div class="vip-ad-card fade-anim">
+      <img src="\${ad.image}" class="vip-img" alt="\${ad.title}">
+      <div class="vip-info">
+        <div class="vip-title">\${ad.title}</div>
+        <div class="vip-desc">\${ad.desc}</div>
+        <a href="tel:\${ad.phone}" class="btn-call-vip">📞 تماس مستقیم</a>
+        \${ad.expiry ? \`<small style="color:#888; font-size:10px; margin-top:5px; display:block;">⏳ \${ad.expiry}</small>\` : ''}
+      </div>
+    </div>
+  \`;
+}
+
+function startRotation() {
+  if (adsList.length <= 1) return;
+  
+  if (timer) clearInterval(timer);
+  
+  timer = setInterval(() => {
+    currentAd = (currentAd + 1) % adsList.length;
+    showAd();
+  }, 8000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  showAd();
+  startRotation();
+  
+  const container = document.getElementById('vip-ad-container');
+  if (container) {
+    container.addEventListener('mouseenter', () => clearInterval(timer));
+    container.addEventListener('mouseleave', () => startRotation());
+  }
+});`;
+            
+            document.getElementById('generated-code').textContent = fullCode;
+            document.getElementById('code-output').style.display = 'block';
+            
+            // اسکرول به کد
+            document.getElementById('code-output').scrollIntoView({ behavior: 'smooth' });
+            
+            alert(`✅ کد ${adsList.length} تبلیغ تولید شد!`);
+        }
+        
+        function copyAllCode() {
+            const code = document.getElementById('generated-code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("✅ تمام کد کپی شد! حالا به فایل ads-simple.js بروید و جایگزین کنید");
+            }).catch(err => {
+                alert("❌ خطا در کپی: " + err);
+            });
+        }
+        
+        function loadSampleAds() {
+            const sampleAds = [
+                {
+                    title: "🔥 الو ذغال - ذغال مرغوب",
+                    desc: "مرغوب‌ترین ذغال کبابی | تحویل فوری در ایذه | قیمت مناسب",
+                    image: "https://raw.githubusercontent.com/aloozoghal-hash/alozoghal/main/8f6dcedf3dc3dbaa82c0df548bd962c9.jpg",
+                    phone: "989220730628",
+                    expiry: "۱۴۰۴/۱۲/۳۰"
+                },
+                {
+                    title: "🎉 تخفیف ویژه",
+                    desc: "۲۰٪ تخفیف برای اولین سفارش | کیفیت تضمینی",
+                    image: "https://via.placeholder.com/150/FFD700/000?text=تخفیف%20ویژه",
+                    phone: "989220730628",
+                    expiry: "۱۴۰۴/۱۱/۱۵"
+                }
+            ];
+            
+            if(adsList.length > 0 && !confirm("لیست فعلی پاک شود و نمونه بارگیری شود؟")) {
+                return;
+            }
+            
+            adsList = sampleAds;
+            updateBulkDisplay();
+            alert("✅ نمونه تبلیغ‌ها بارگیری شدند");
+        }
+        
+        // بارگذاری اولیه
+        document.addEventListener('DOMContentLoaded', function() {
+            // بارگذاری تبلیغات ذخیره شده
+            const savedAds = localStorage.getItem('aloozoghal_ads_draft');
+            if(savedAds) {
+                try {
+                    adsList = JSON.parse(savedAds);
+                    updateBulkDisplay();
+                } catch(e) {}
+            }
+            
+            // ذخیره خودکار هنگام بسته شدن
+            window.addEventListener('beforeunload', function() {
+                localStorage.setItem('aloozoghal_ads_draft', JSON.stringify(adsList));
+            });
+        });
+    </script>
+</body>
+</html>
