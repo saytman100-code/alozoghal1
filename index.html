@@ -26,14 +26,32 @@
         .ticker-container {
             width: 100%; background: #000; border-bottom: 1px solid var(--gold);
             overflow: hidden; white-space: nowrap; padding: 8px 0; z-index: 1000; margin-bottom: 10px;
+            position: relative;
         }
         .ticker-text {
             display: inline-block; padding-right: 100%;
-            animation: marquee 15s linear infinite; color: var(--gold); font-size: 13px;
+            animation: marquee 20s linear infinite; color: var(--gold); font-size: 13px;
         }
         @keyframes marquee { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-        .blink { animation: blinker 0.8s linear infinite; color: #fff; font-weight: bold; background: var(--fire); padding: 2px 6px; border-radius: 5px; margin: 0 5px; }
-        @keyframes blinker { 50% { opacity: 0; } }
+        
+        .ticker-control {
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(226, 176, 74, 0.2);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            border-radius: 5px;
+            padding: 2px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 1001;
+            display: none;
+        }
+        .ticker-container:hover .ticker-control {
+            display: block;
+        }
 
         .stories-container {
             display: flex; gap: 15px; padding: 15px 5px; overflow-x: auto; 
@@ -164,7 +182,7 @@
 
         .call-float { position: fixed; bottom: 20px; right: 20px; background: var(--gold); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 28px; z-index: 1000; }
         
-        /* استایل مخفی برای لینک پنل */
+        /* دکمه مخفی */
         .secret-admin-link {
             position: fixed;
             top: 5px;
@@ -182,23 +200,6 @@
             opacity: 0.3;
         }
         
-        /* دکمه ساخت تبلیغ */
-        .make-ad-btn {
-            display: inline-block;
-            margin: 10px 0;
-            padding: 8px 15px;
-            background: #25D366;
-            border: 1px solid #25D366;
-            border-radius: 10px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 12px;
-            transition: 0.3s;
-        }
-        .make-ad-btn:hover {
-            background: #1da851;
-        }
-        
         /* استایل برای دکمه‌های ارسال */
         .send-buttons {
             display: flex;
@@ -206,14 +207,29 @@
             gap: 10px;
             margin-top: 15px;
         }
+        
+        /* هشدار */
+        .alert {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+            text-align: center;
+        }
+        .alert-info {
+            background: rgba(0, 150, 255, 0.1);
+            border: 1px solid #0096ff;
+            color: #0096ff;
+        }
     </style>
 </head>
 <body>
 
     <!-- دکمه مخفی ورود به پنل -->
-    <button class="secret-admin-link" onclick="window.open('admin-panel-simple.html', '_blank')" title="ورود به پنل مدیریت">⚙️</button>
+    <button class="secret-admin-link" onclick="window.open('admin-panel-advanced.html', '_blank')" title="ورود به پنل مدیریت">⚙️</button>
 
     <div class="ticker-container">
+        <button class="ticker-control" onclick="openTickerManager()">✏️</button>
         <div class="ticker-text" id="ticker-box">🔥 الو ذغال | سفارش آنلاین ذغال مرغوب | تحویل سریع در ایذه 🔥</div>
     </div>
 
@@ -230,16 +246,8 @@
         <div class="brand-container"><span class="fire-anim">🔥</span><div class="brand-name">الو ذغال</div><span class="fire-anim">🔥</span></div>
         <div class="sub-brand">سفارش سریع ذغال</div>
         
-        <!-- دکمه ساخت تبلیغ -->
-        <a href="admin-panel-simple.html" class="make-ad-btn">⚡ ساخت تبلیغ جدید</a>
-        
-        <div id="stories-wrapper" class="stories-container">
-            <div class="story-item" id="add-story-btn" onclick="openStoryUpload()">
-                <div class="story-ring add-btn">
-                    <span style="font-size: 24px; color: var(--gold);">+</span>
-                </div>
-                <span>ثبت تبلیغ</span>
-            </div>
+        <!-- استوری‌ها حذف شده -->
+        <div id="stories-wrapper" class="stories-container" style="display:none;">
         </div>
     </div>
 
@@ -247,11 +255,8 @@
         <!-- تبلیغات به صورت خودکار لود می‌شوند -->
     </div>
 
-    <div id="story-modal">
-        <div class="story-progress-bg"><div id="story-progress-fill"></div></div>
-        <span onclick="closeStory()" style="position:absolute; top:30px; right:30px; font-size:40px; color:white; cursor:pointer; font-weight:bold;">×</span>
-        <img id="story-full-img" src="" style="max-width:90%; max-height:75%; border-radius:15px; border:2px solid var(--gold); box-shadow: 0 0 20px rgba(226,176,74,0.5);">
-        <a id="story-link" href="#" class="btn btn-gold" style="width:auto; margin-top:25px; padding:12px 40px; text-decoration:none;">📱 ارتباط با کسب‌وکار</a>
+    <div id="story-modal" style="display:none;">
+        <!-- غیرفعال شده -->
     </div>
 
     <div class="media-container">
@@ -278,9 +283,12 @@
             </div>
             
             <div class="form-group">
-                <label>📱 شماره تماس (برای تماس مدیر):</label>
+                <label>📱 شماره تماس:</label>
                 <input type="tel" id="custPhone" placeholder="09XXXXXXXXX" dir="ltr">
-                <small style="color:#888; font-size:11px; display:block; margin-top:5px;">شماره شما محرمانه است و فقط مدیر برای تأیید سفارش تماس می‌گیرد</small>
+            </div>
+            
+            <div class="alert alert-info">
+                شماره شما تنها برای تماس مدیر با شما استفاده می‌شود
             </div>
             
             <div class="form-group"><label>🕒 زمان تحویل:</label>
@@ -354,9 +362,6 @@
             <li style="direction: ltr; margin-top:5px;">۰۹۲۲ ۰۷۳ ۰۶۲۸ 📞</li>
             <li style="margin-top:5px; font-size:11px; color:#666;">🕒 پاسخگویی: ۷ صبح تا ۹ شب</li>
         </ul>
-        <p style="text-align:center; margin-top:15px;">
-            <a href="admin-panel-simple.html" class="make-ad-btn">⚡ ساخت تبلیغ جدید</a>
-        </p>
     </footer>
 
     <a href="tel:09220730628" class="call-float">📞</a>
@@ -365,17 +370,64 @@
     <script src="ads-simple.js"></script>
     
     <script>
-        /* --- لودر هوشمند اطلاعات --- */
+        /* --- سیستم پیشرفته --- */
         let storyTimer;
         
         // کد مخفی ورود به پنل
         const SECRET_CODE = "علی نادریان 1362541";
         let secretEntered = false;
 
+        // مدیریت متن روان (Ticker)
+        const tickerMessages = [
+            "🔥 الو ذغال | سفارش آنلاین ذغال مرغوب | تحویل سریع در ایذه",
+            "🎉 با خرید 3 کیسه ذغال، یک بسته سبزی رایگان دریافت کنید!",
+            "🚚 تحویل رایگان برای سفارش‌های بالای 200,000 تومان",
+            "⭐ ذغال مرغوب کبابی با کیفیت عالی | ضمانت برگشت"
+        ];
+        
+        let currentTickerIndex = 0;
+
+        function initTicker() {
+            // بارگذاری از localStorage یا استفاده از پیش‌فرض
+            const savedTickers = localStorage.getItem('aloozoghal_tickers');
+            if(savedTickers) {
+                try {
+                    const parsed = JSON.parse(savedTickers);
+                    if(Array.isArray(parsed) && parsed.length > 0) {
+                        tickerMessages.length = 0;
+                        tickerMessages.push(...parsed);
+                    }
+                } catch(e) {
+                    console.log('خطا در بارگیری متن‌های تیکر');
+                }
+            }
+            
+            updateTicker();
+            // تغییر خودکار هر 30 ثانیه
+            setInterval(() => {
+                currentTickerIndex = (currentTickerIndex + 1) % tickerMessages.length;
+                updateTicker();
+            }, 30000);
+        }
+
+        function updateTicker() {
+            if(tickerMessages.length === 0) return;
+            document.getElementById('ticker-box').innerHTML = tickerMessages[currentTickerIndex];
+        }
+
+        function openTickerManager() {
+            // فقط اگر کد مخفی وارد شده باشد
+            if(secretEntered) {
+                window.open('ticker-manager.html', '_blank');
+            } else {
+                alert('برای مدیریت متن‌های تبلیغاتی، ابتدا باید تأیید هویت شوید.');
+            }
+        }
+
         async function loadAllContent() {
             try {
-                updateTicker();
-                await loadStories();
+                initTicker();
+                // استوری‌ها غیرفعال شده
             } catch (e) { 
                 console.log("خطا در بارگذاری محتوا:", e);
             }
@@ -401,7 +453,7 @@
                     
                     // اضافه کردن event listener برای کلیک
                     nameInput.onclick = function() {
-                        window.open('admin-panel-simple.html', '_blank');
+                        window.open('admin-panel-advanced.html', '_blank');
                         nameInput.value = '';
                         nameInput.placeholder = 'نام خود را وارد کنید...';
                         nameInput.style.borderColor = '';
@@ -436,109 +488,7 @@
             }, 2000);
         }
 
-        function updateTicker() {
-            const tickerMessages = [
-                "🔥 پیشنهاد ویژه: با خرید 3 کیسه ذغال، یک بسته سبزی رایگان دریافت کنید!",
-                "🚚 تحویل رایگان برای سفارش‌های بالای 200,000 تومان",
-                "⭐ ذغال مرغوب کبابی با کیفیت عالی | ضمانت برگشت",
-                "🎉 جشنواره نوروزی الو ذغال | تخفیف‌های ویژه"
-            ];
-            
-            const randomMsg = tickerMessages[Math.floor(Math.random() * tickerMessages.length)];
-            document.getElementById('ticker-box').innerHTML = randomMsg;
-        }
-
-        async function loadStories() {
-            try {
-                const response = await fetch('stories.json?v=' + Math.random());
-                const data = await response.json();
-                
-                const wrapper = document.getElementById('stories-wrapper');
-                const addBtn = document.getElementById('add-story-btn');
-                
-                const existingStories = wrapper.querySelectorAll('.story-item:not(#add-story-btn)');
-                existingStories.forEach(story => story.remove());
-                
-                data.stories.forEach(story => {
-                    const div = document.createElement('div');
-                    div.className = 'story-item';
-                    div.onclick = () => showStory(story.image, story.link);
-                    div.innerHTML = `
-                        <div class="story-ring active">
-                            <img src="${story.thumb}" alt="${story.name}" loading="lazy">
-                        </div>
-                        <span>${story.name}</span>
-                    `;
-                    wrapper.insertBefore(div, addBtn);
-                });
-                
-                localStorage.setItem('cached_stories', JSON.stringify({
-                    data: data.stories,
-                    timestamp: Date.now()
-                }));
-                
-            } catch (e) {
-                console.log("خطا در بارگذاری استوری‌ها:", e);
-                loadCachedStories();
-            }
-        }
-
-        function loadCachedStories() {
-            const cached = localStorage.getItem('cached_stories');
-            if (cached) {
-                const { data, timestamp } = JSON.parse(cached);
-                if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-                    const wrapper = document.getElementById('stories-wrapper');
-                    const addBtn = document.getElementById('add-story-btn');
-                    
-                    data.forEach(story => {
-                        const div = document.createElement('div');
-                        div.className = 'story-item';
-                        div.onclick = () => showStory(story.image, story.link);
-                        div.innerHTML = `
-                            <div class="story-ring active">
-                                <img src="${story.thumb}" alt="${story.name}">
-                            </div>
-                            <span>${story.name}</span>
-                        `;
-                        wrapper.insertBefore(div, addBtn);
-                    });
-                }
-            }
-        }
-
-        function showStory(img, link) {
-            const modal = document.getElementById('story-modal');
-            const fill = document.getElementById('story-progress-fill');
-            document.getElementById('story-full-img').src = img;
-            document.getElementById('story-link').href = link;
-            modal.style.display = 'flex';
-            
-            let width = 0;
-            fill.style.width = '0%';
-            clearInterval(storyTimer);
-            
-            storyTimer = setInterval(() => {
-                width += 1;
-                fill.style.width = width + '%';
-                if (width >= 100) {
-                    closeStory();
-                }
-            }, 100);
-        }
-
-        function closeStory() {
-            clearInterval(storyTimer);
-            document.getElementById('story-modal').style.display = 'none';
-        }
-
-        function openStoryUpload() {
-            if (secretEntered) {
-                window.open('admin-panel-simple.html?tab=stories', '_blank');
-            } else {
-                alert('برای ثبت تبلیغ، ابتدا باید تأیید هویت شوید. لطفاً با مدیر سیستم تماس بگیرید.');
-            }
-        }
+        // حذف توابع مربوط به استوری‌ها
 
         const videoWrapper = document.getElementById('videoWrapper');
         const vids = document.querySelectorAll('#videoWrapper video');
@@ -629,27 +579,22 @@
             document.getElementById('form-area').style.display='none';
             document.getElementById('invoice').style.display='block';
             
-            // تولید متن سفارش
-            let orderText = `📦 ذغال: ${zCount} کیسه\n`;
-            if(sCount > 0) orderText += `🥗 سبزی: ${sCount} بسته\n`;
-            
-            const orderMessage = `📋 **سفارش جدید الو ذغال**\n\n👤 نام: ${name}\n📱 تلفن: ${phone}\n${orderText}🕒 تحویل: ${time}\n🏠 آدرس: ${addr}\n💰 مبلغ: ${total.toLocaleString()} تومان\n📍 لوکیشن: ${locL || "ثبت نشده"}\n\n⏰ زمان سفارش: ${new Date().toLocaleString('fa-IR')}`;
+            // تولید متن سفارش برای ارسال
+            const orderMessage = `سفارش جدید الو ذغال\nنام: ${name}\nتلفن: ${phone}\nذغال: ${zCount} کیسه${sCount > 0 ? `\nسبزی: ${sCount} بسته` : ''}\nتحویل: ${time}\nآدرس: ${addr}\nمبلغ: ${total.toLocaleString()} تومان${locL ? `\nلوکیشن: ${locL}` : ''}\nزمان: ${new Date().toLocaleString('fa-IR')}`;
             
             // واتساپ
-            const waMsg = encodeURIComponent(`سلام الو ذغال🖐️\n👤 نام: ${name}\n📱 تلفن: ${phone}\n${orderText}🕒 تحویل: ${time}\n🏠 آدرس: ${addr}\n💰 مبلغ: ${total.toLocaleString()} تومان\n📍 لوکیشن: ${locL || "ثبت نشده"}`);
+            const waMsg = encodeURIComponent(`سلام الو ذغال🖐️\n👤 نام: ${name}\n📱 تلفن: ${phone}\n📦 ذغال: ${zCount} کیسه${sCount > 0 ? `\n🥗 سبزی: ${sCount} بسته` : ''}\n🕒 تحویل: ${time}\n🏠 آدرس: ${addr}\n💰 مبلغ: ${total.toLocaleString()} تومان${locL ? `\n📍 لوکیشن: ${locL}` : ''}`);
             document.getElementById('waLink').href = `https://wa.me/989220730628?text=${waMsg}`;
             document.getElementById('waLink').style.display='block';
             
-            // پیامک
-            const smsMsg = encodeURIComponent(`سفارش جدید: ${name} - ${phone} - ${zCount} ذغال - ${total.toLocaleString()} تومان - ${addr}`);
+            // پیامک - متن کامل
+            const smsMsg = encodeURIComponent(`سفارش الو ذغال\nنام: ${name}\nتلفن: ${phone}\nذغال: ${zCount} کیسه\n${sCount > 0 ? `سبزی: ${sCount} بسته\n` : ''}تحویل: ${time}\nآدرس: ${addr}\nمبلغ: ${total.toLocaleString()} تومان${locL ? `\nلوکیشن: ${locL}` : ''}`);
             document.getElementById('smsLink').href = `sms:989220730628?body=${smsMsg}`;
             document.getElementById('smsLink').style.display='block';
             
-            // تلگرام (استفاده از Bot API)
-            const tgMsg = encodeURIComponent(orderMessage);
-            const telegramBotToken = '8218710893:AAEXn2Q7VmPt32RSkz0fxY0jja6DdUld1xE';
-            const telegramChatId = '5696902910';
-            document.getElementById('tgLink').href = `https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${telegramChatId}&text=${tgMsg}&parse_mode=Markdown`;
+            // تلگرام - فرمت ساده‌تر
+            const tgSimpleMsg = encodeURIComponent(`📋 سفارش جدید\n👤 ${name}\n📱 ${phone}\n📦 ${zCount} ذغال${sCount > 0 ? ` + ${sCount} سبزی` : ''}\n🕒 ${time}\n📍 ${addr}\n💰 ${total.toLocaleString()} تومان${locL ? `\n🗺️ ${locL}` : ''}`);
+            document.getElementById('tgLink').href = `https://api.telegram.org/bot8218710893:AAEXn2Q7VmPt32RSkz0fxY0jja6DdUld1xE/sendMessage?chat_id=5696902910&text=${tgSimpleMsg}`;
             document.getElementById('tgLink').style.display='block';
         }
 
